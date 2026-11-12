@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mitr Sewa - Cloud BC & Admin Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 850: '#151f32', 900: '#0f172a', 950: '#020617' },
+                        mitr: { yellow: '#ffbf00', gold: '#f59e0b', dark: '#5a2205' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; -webkit-tap-highlight-color: transparent; }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.25); }
+            50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.55); }
+        }
+        .target-glow { animation: pulseGlow 3s infinite ease-in-out; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-slate-800 antialiased pb-12 sm:pb-6">
+
+    <!-- Cloud Sync Status Banner -->
+    <div id="cloudStatusBanner" class="bg-emerald-950 text-emerald-300 text-[10px] py-1 px-4 text-center font-mono flex items-center justify-center gap-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+        <span id="cloudStatusText">Connecting to Firebase Cloud...</span>
+    </div>
+
+    <!-- Unified Mobile-First Header -->
+    <header class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white sticky top-0 z-40 border-b border-slate-800 px-4 py-3 shadow-md">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchToAgentPortal()">
+                <div class="h-10 w-10 rounded-xl bg-amber-400 p-0.5 shadow-md flex items-center justify-center border border-amber-300 shrink-0">
+                    <svg viewBox="0 0 100 100" class="w-full h-full">
+                        <circle cx="50" cy="50" r="46" fill="#fbb024" stroke="#1e3a8a" stroke-width="4"/>
+                        <circle cx="50" cy="50" r="41" fill="#fcd34d"/>
+                        <path d="M 22 52 C 26 42, 42 36, 48 38 C 45 42, 43 45, 42 49 C 39 49, 34 52, 30 55 Z" fill="#ea580c"/>
+                        <path d="M 78 30 C 70 30, 56 38, 54 44 C 58 46, 62 48, 66 49 C 68 53, 62 57, 56 61 C 62 64, 70 58, 76 50 Z" fill="#f97316"/>
+                        <circle cx="50" cy="50" r="43" fill="none" stroke="#ea580c" stroke-width="1.2" stroke-dasharray="2 2"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-sm sm:text-base leading-tight tracking-wide text-white">
+                        <span class="text-amber-400">Mitr Sewa</span> <span id="headerPortalTitle">BC Portal</span>
+                    </h1>
+                    <p class="text-[10px] text-slate-400" id="headerPortalSubtitle">Insurance & Fintech Pvt. Ltd.</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button id="btnAgentLogout" onclick="logoutAgent()" class="hidden px-2.5 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 text-xs font-semibold border border-rose-500/30 transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-right-from-bracket text-xs"></i>
+                    <span class="hidden sm:inline">Logout</span>
+                </button>
+
+                <div id="adminHeaderControls" class="hidden flex items-center gap-2">
+                    <button onclick="switchToAgentPortal()" class="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold shadow-sm flex items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-user-tie text-xs"></i>
+                        <span>BC View</span>
+                    </button>
+                    <button onclick="logoutAdmin()" class="px-2.5 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 text-xs font-semibold border border-rose-500/30 transition-all" title="Logout Admin">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                </div>
+
+                <button id="btnOpenAdminAuth" onclick="openAdminLoginModal()" 
+                    class="w-9 h-9 rounded-xl bg-slate-800/80 hover:bg-slate-700/90 text-slate-300 hover:text-amber-400 border border-slate-700/70 flex items-center justify-center transition-all shadow-sm active:scale-95" 
+                    title="Administrative Access">
+                    <i class="fa-solid fa-lock text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="w-full flex-grow p-3.5 sm:p-5">
+
+        <!-- ========================================== -->
+        <!-- SECTION 1: BC AGENT VIEW CONTAINER         -->
+        <!-- ========================================== -->
+        <div id="containerBcSection" class="w-full max-w-md mx-auto sm:max-w-xl">
+            
+            <!-- VIEW 1.1: BC Sign In -->
+            <section id="viewBcLogin" class="py-4">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-7">
+                    <div class="text-center mb-6">
+                        <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-2xl mb-2.5 border border-amber-200">
+                            <i class="fa-solid fa-id-card-clip"></i>
+                        </div>
+                        <h2 class="text-xl font-black text-slate-900">BC Agent Sign In</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Enter your BC credentials to log daily attendance</p>
+                    </div>
+
+                    <form id="formBcLogin" onsubmit="handleAgentLogin(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                                BC Code (User ID) <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex">
+                                <span class="inline-flex items-center px-3.5 bg-slate-100 border border-r-0 border-slate-300 rounded-l-xl text-slate-600 font-mono text-xs font-bold">
+                                    WB58
+                                </span>
+                                <input type="text" id="loginBcCodeSuffix" required placeholder="1001" 
+                                    class="w-full px-3.5 py-3 bg-slate-50 border border-slate-300 rounded-r-xl focus:ring-2 focus:ring-amber-500 focus:bg-white text-slate-800 font-mono text-sm font-semibold uppercase transition-all">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                                Account Password <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                                    <i class="fa-solid fa-lock text-xs"></i>
+                                </span>
+                                <input type="password" id="loginBcPassword" required placeholder="Enter password" 
+                                    class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:bg-white text-slate-800 text-sm transition-all">
+                            </div>
+                        </div>
+
+                        <div id="userLoginError" class="hidden p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs flex items-center gap-2">
+                            <i class="fa-solid fa-circle-exclamation text-sm shrink-0"></i>
+                            <span id="userLoginErrorMsg">Invalid BC Code or Password!</span>
+                        </div>
+
+                        <button type="submit" id="btnBcSignIn" class="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow-md shadow-amber-500/25 transition-all flex items-center justify-center gap-2 text-sm active:scale-[0.98]">
+                            <span>Sign In to BC Portal</span>
+                            <i class="fa-solid fa-right-to-bracket text-xs"></i>
+                        </button>
+                    </form>
+
+                    <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <span class="text-emerald-600 font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-cloud"></i> Real-time Cloud Sync
+                        </span>
+                        <span id="memberCounterBadge" class="text-slate-500 text-[11px] font-mono">Loading Cloud DB...</span>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-100 text-center space-y-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-[11px] font-medium border border-slate-200">
+                            <i class="fa-solid fa-code text-amber-500"></i> It's Made by <strong class="text-slate-800">Sajib Mondal</strong> &bull; Territory Manager
+                        </span>
+                        <div>
+                            <a href="tel:8617409054" class="inline-flex items-center gap-1.5 text-[11px] text-amber-700 font-semibold hover:underline bg-amber-50 border border-amber-200/80 px-3 py-1 rounded-full">
+                                <i class="fa-solid fa-phone-volume text-amber-600"></i>
+                                <span>Any login issue call for <span class="font-bold font-mono">8617409054</span></span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 1.2: BC Agent Dashboard -->
+            <section id="viewBcDashboard" class="hidden space-y-4">
+                
+                <!-- Live Admin Notice Banner -->
+                <div id="bcLiveNoticeBanner" class="bg-amber-50 border-l-4 border-amber-500 rounded-r-2xl p-3.5 shadow-sm">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[11px] font-extrabold uppercase tracking-wider text-amber-800 flex items-center gap-1.5">
+                            <i class="fa-solid fa-bullhorn text-amber-600 animate-bounce"></i> Territory Notice Board
+                        </span>
+                        <span id="bcNoticeTime" class="text-[10px] font-mono text-amber-700/80">Live</span>
+                    </div>
+                    <p id="bcNoticeMessage" class="text-xs font-medium text-slate-800 leading-relaxed">
+                        Welcome to Mitr Sewa Field Portal. Complete your morning check-in on time.
+                    </p>
+                </div>
+
+                <!-- Profile & Status Card -->
+                <div class="bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 rounded-2xl p-4 sm:p-5 text-white shadow-md border border-slate-800 relative">
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center space-x-3 min-w-0">
+                            <div class="h-12 w-12 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-300 text-slate-950 flex items-center justify-center font-black text-lg shrink-0 shadow-md">
+                                <span id="userAvatarText">BC</span>
+                            </div>
+                            <div class="truncate">
+                                <h2 id="userNameDisplay" class="text-base font-bold truncate">BC Agent Name</h2>
+                                <p class="text-xs text-amber-400 font-mono" id="userBcCodeDisplay">WB581001</p>
+                            </div>
+                        </div>
+
+                        <div class="text-right shrink-0">
+                            <span id="dailyStatusBadge" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                Check-In Pending
+                            </span>
+                            <div class="text-[10px] text-slate-400 mt-1 font-mono" id="currentDateDisplay">Date</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 pt-3 border-t border-slate-800/80 flex flex-wrap gap-2 text-[11px] text-slate-300">
+                        <span class="bg-slate-800/90 px-2 py-0.5 rounded-md border border-slate-700/60"><i class="fa-solid fa-building text-blue-400 mr-1"></i><span id="userBranchDisplay">Branch</span></span>
+                        <span class="bg-slate-800/90 px-2 py-0.5 rounded-md border border-slate-700/60"><i class="fa-solid fa-location-dot text-rose-400 mr-1"></i><span id="userLocationDisplay">Location</span></span>
+                        <span class="bg-slate-800/90 px-2 py-0.5 rounded-md border border-slate-700/60"><i class="fa-solid fa-map text-emerald-400 mr-1"></i><span id="userZoneDisplay">Zone</span></span>
+                    </div>
+
+                    <div class="mt-3">
+                        <button id="btnHeaderCheckIn" onclick="handleHeaderAction()" class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+                            <i class="fa-solid fa-fingerprint"></i>
+                            <span id="headerActionText">Quick Check-In Now</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Assigned Targets Card -->
+                <div class="relative bg-gradient-to-r from-slate-950 via-amber-950/70 to-slate-900 border-2 border-amber-400/50 rounded-2xl p-4 text-white shadow-lg target-glow overflow-hidden">
+                    <div class="flex items-center justify-between pb-2.5 border-b border-amber-500/20">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center text-xs font-bold">
+                                <i class="fa-solid fa-crosshairs"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xs sm:text-sm font-extrabold text-white">Today's Assigned Target</h3>
+                                <p class="text-[10px] text-amber-200/80 truncate max-w-[200px]" id="targetAdminNote">Directives from Territory Management</p>
+                            </div>
+                        </div>
+                        <span class="text-[11px] font-mono bg-slate-900/90 text-amber-300 px-2 py-1 rounded-md border border-amber-400/30 font-bold">
+                            Total: <strong id="targetTotalSum" class="text-white">0</strong>
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 mt-3 text-xs">
+                        <div class="bg-slate-900/90 border border-blue-500/30 rounded-xl p-2.5 flex justify-between items-center text-[11px] font-bold text-blue-400">
+                            <span>PMJDY</span><span id="targetCardPmjdy" class="font-mono text-white text-sm">0</span>
+                        </div>
+                        <div class="bg-slate-900/90 border border-amber-500/30 rounded-xl p-2.5 flex justify-between items-center text-[11px] font-bold text-amber-400">
+                            <span>PMSBY</span><span id="targetCardPmsby" class="font-mono text-white text-sm">0</span>
+                        </div>
+                        <div class="bg-slate-900/90 border border-purple-500/30 rounded-xl p-2.5 flex justify-between items-center text-[11px] font-bold text-purple-400">
+                            <span>PMJJBY</span><span id="targetCardPmjjby" class="font-mono text-white text-sm">0</span>
+                        </div>
+                        <div class="bg-slate-900/90 border border-emerald-500/30 rounded-xl p-2.5 flex justify-between items-center text-[11px] font-bold text-emerald-400">
+                            <span>APY</span><span id="targetCardApy" class="font-mono text-white text-sm">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cumulative Performance Metrics -->
+                <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between pb-2.5 border-b border-slate-100">
+                        <h3 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                            <i class="fa-solid fa-chart-pie text-amber-600"></i>
+                            <span>Total Performance Metrics</span>
+                        </h3>
+                        <span class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono font-semibold">Cloud Synced</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 mt-3 text-xs">
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex justify-between items-center">
+                            <span class="font-bold text-slate-800">PMJDY:</span>
+                            <span class="font-mono font-bold"><span id="summaryPmjdyEnr" class="text-amber-600">0</span> / <span id="summaryPmjdyAuth" class="text-blue-600">0</span></span>
+                        </div>
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex justify-between items-center">
+                            <span class="font-bold text-slate-800">PMSBY:</span>
+                            <span class="font-mono font-bold"><span id="summaryPmsbyEnr" class="text-amber-600">0</span> / <span id="summaryPmsbyAuth" class="text-blue-600">0</span></span>
+                        </div>
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex justify-between items-center">
+                            <span class="font-bold text-slate-800">PMJJBY:</span>
+                            <span class="font-mono font-bold"><span id="summaryPmjjbyEnr" class="text-amber-600">0</span> / <span id="summaryPmjjbyAuth" class="text-blue-600">0</span></span>
+                        </div>
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex justify-between items-center">
+                            <span class="font-bold text-slate-800">APY:</span>
+                            <span class="font-mono font-bold"><span id="summaryApyEnr" class="text-amber-600">0</span> / <span id="summaryApyAuth" class="text-blue-600">0</span></span>
+                        </div>
+                        <div class="col-span-2 bg-slate-900 text-white p-2.5 rounded-xl flex justify-between items-center">
+                            <span class="font-bold text-slate-200"><i class="fa-solid fa-calculator text-amber-400 mr-1"></i>Total Schemes:</span>
+                            <span class="font-mono font-bold">
+                                <span id="summaryGrandEnrolled" class="text-amber-400">0 Enrolled</span> &bull; 
+                                <span id="summaryGrandAuth" class="text-blue-400">0 Auth</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attendance Execution Box -->
+                <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between text-xs font-semibold text-slate-700">
+                        <span><i class="fa-solid fa-fingerprint text-amber-600 mr-1.5"></i>Attendance Execution (GPS)</span>
+                        <span class="text-[10px] text-slate-400">08:00-10:00 AM | 06:00-08:00 PM</span>
+                    </div>
+
+                    <div id="adminBypassNoticeBox" class="hidden p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-emerald-800">
+                        <span class="flex items-center gap-1.5 font-bold">
+                            <i class="fa-solid fa-clock-rotate-left text-emerald-600"></i> Admin Time Bypass Active
+                        </span>
+                        <span class="text-[10px] bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-full font-semibold">Anytime Allowed</span>
+                    </div>
+
+                    <div id="checkInInfoBox" class="hidden p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex justify-between items-center">
+                        <span><i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i>Check-In Recorded</span>
+                        <strong id="checkInTimeRecorded" class="font-mono">--:-- --</strong>
+                    </div>
+
+                    <button id="btnCheckIn" onclick="handleCheckIn()" class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-md transition-all flex items-center justify-center gap-2 text-sm active:scale-[0.98]">
+                        <i class="fa-solid fa-fingerprint text-base"></i>
+                        <span>Record Morning Check-In</span>
+                    </button>
+
+                    <button id="btnTriggerCheckOut" onclick="scrollToEodReport()" class="hidden w-full py-3.5 px-4 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl font-bold shadow-md transition-all flex items-center justify-center gap-2 text-sm active:scale-[0.98]">
+                        <i class="fa-solid fa-file-signature text-base"></i>
+                        <span>Fill EOD Report & Check-Out</span>
+                        <i class="fa-solid fa-arrow-down text-xs"></i>
+                    </button>
+
+                    <div id="checkOutInfoBox" class="hidden p-2.5 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-900 flex justify-between items-center">
+                        <span><i class="fa-solid fa-flag-checkered text-blue-600 mr-1"></i>Checkout Completed</span>
+                        <strong id="checkOutTimeRecorded" class="font-mono">--:-- --</strong>
+                    </div>
+                </div>
+
+                <!-- EOD Scheme Enrollment Report Form -->
+                <div id="sectionEodReportCard" class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm transition-all duration-300">
+                    <div class="pb-3 border-b border-slate-100 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                                <i class="fa-solid fa-file-invoice text-amber-600"></i>
+                                <span>Daily Scheme Report (EOD)</span>
+                            </h3>
+                            <p class="text-[11px] text-slate-500">Submitting completes your daily check-out</p>
+                        </div>
+                        <span class="text-[10px] bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-mono">EOD</span>
+                    </div>
+
+                    <form id="formEodReport" onsubmit="handleEodAndCheckout(event)" class="mt-4 space-y-3">
+                        <div class="grid grid-cols-12 gap-2 pb-1 text-[11px] font-bold text-slate-500 uppercase tracking-wider text-center">
+                            <div class="col-span-5 text-left">Scheme</div>
+                            <div class="col-span-4">Enroll</div>
+                            <div class="col-span-3">Auth</div>
+                        </div>
+
+                        <div class="grid grid-cols-12 gap-2 items-center py-1.5 border-b border-slate-100">
+                            <div class="col-span-5 text-xs font-bold text-slate-800 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-600"></span> PMJDY</div>
+                            <div class="col-span-4"><input type="number" id="repPmjdyEnroll" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
+                            <div class="col-span-3"><input type="number" id="repPmjdyAuth" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
+                        </div>
+
+                        <div class="grid grid-cols-12 gap-2 items-center py-1.5 border-b border-slate-100">
+                            <div class="col-span-5 text-xs font-bold text-slate-800 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-600"></span> PMSBY</div>
+                            <div class="col-span-4"><input type="number" id="repPmsbyEnroll" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
+                            <div class="col-span-3"><input type="number" id="repPmsbyAuth" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
+                        </div>
+
+                        <div class="grid grid-cols-12 gap-2 items-center py-1.5 border-b border-slate-100">
+                            <div class="col-span-5 text-xs font-bold text-slate-800 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-purple-600"></span> PMJJBY</div>
+                            <div class="col-span-4"><input type="number" id="repPmjjbyEnroll" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
+                            <div class="col-span-3"><input type="number" id="repPmjjbyAuth" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
+                        </div>
+
+                        <div class="grid grid-cols-12 gap-2 items-center py-1.5 border-b border-slate-100">
+                            <div class="col-span-5 text-xs font-bold text-slate-800 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-600"></span> APY</div>
+                            <div class="col-span-4"><input type="number" id="repApyEnroll" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
+                            <div class="col-span-3"><input type="number" id="repApyAuth" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Remarks (Optional)</label>
+                            <input type="text" id="repRemarks" placeholder="Branch notes..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs">
+                        </div>
+
+                        <div id="checkOutNoticeBox" class="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-[11px] text-amber-800 flex items-center gap-1.5">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
+                            <span>Check-In is required prior to filing the EOD report.</span>
+                        </div>
+
+                        <button type="submit" id="btnSubmitEodCheckout" disabled class="w-full py-3.5 px-4 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white rounded-xl font-bold shadow-md transition-all flex items-center justify-center gap-2 text-xs sm:text-sm">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <span>Submit EOD Report & Complete Checkout</span>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="pt-2 pb-4 text-center space-y-2">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm text-[11px] font-medium text-slate-600">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span>It's Made by <strong class="text-slate-900">Sajib Mondal</strong> &bull; Territory Manager</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SECTION 2: ADMIN CONSOLE CONTAINER         -->
+        <!-- ========================================== -->
+        <div id="containerAdminSection" class="hidden w-full max-w-6xl mx-auto space-y-4">
+            
+            <!-- Quick Top Stats -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <span class="text-[11px] font-semibold text-slate-500 uppercase block">Registered BCs</span>
+                    <span id="statTotalMembers" class="text-xl sm:text-2xl font-black text-slate-900 mt-0.5 block">0</span>
+                </div>
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <span class="text-[11px] font-semibold text-slate-500 uppercase block">Today Check-In</span>
+                    <span id="statCheckedIn" class="text-xl sm:text-2xl font-black text-blue-600 mt-0.5 block">0</span>
+                </div>
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <span class="text-[11px] font-semibold text-slate-500 uppercase block">Checkout Done</span>
+                    <span id="statCheckedOut" class="text-xl sm:text-2xl font-black text-emerald-600 mt-0.5 block">0</span>
+                </div>
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+                    <span class="text-[11px] font-semibold text-slate-500 uppercase block">Today Schemes</span>
+                    <span id="statTotalEnrollments" class="text-xl sm:text-2xl font-black text-amber-600 mt-0.5 block">0</span>
+                </div>
+            </div>
+
+            <!-- Quick Action Bar -->
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="exportToCsv()" class="flex-1 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <span>Export Master MIS (CSV)</span>
+                </button>
+                <button onclick="switchToAgentPortal()" class="flex-1 py-2.5 px-3 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Back to BC Portal</span>
+                </button>
+            </div>
+
+            <!-- Global Time Bypass Bar -->
+            <div class="bg-amber-50/80 border border-amber-200 p-3.5 rounded-2xl flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold shrink-0">
+                        <i class="fa-solid fa-user-clock text-sm"></i>
+                    </div>
+                    <div>
+                        <strong class="text-slate-900 block font-bold">Cloud BC Time Bypass Control</strong>
+                        <span class="text-[11px] text-slate-600">Standard: 08-10 AM & 06-08 PM. Updates instantly across all devices.</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleAllBypass(true)" class="px-2.5 py-1.5 bg-amber-200 hover:bg-amber-300 text-amber-900 rounded-lg text-[10px] font-bold">Enable All</button>
+                    <button onclick="toggleAllBypass(false)" class="px-2.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-[10px] font-bold">Reset All</button>
+                </div>
+            </div>
+
+            <!-- Horizontal Navigation Tabs -->
+            <div class="flex space-x-2 overflow-x-auto pb-1 custom-scrollbar">
+                <button onclick="switchAdminTab('tabAddMember')" id="navTabAddMember" class="whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 shadow-sm">
+                    <i class="fa-solid fa-user-plus mr-1"></i> Create BC ID
+                </button>
+                <button onclick="switchAdminTab('tabNoticeBoard')" id="navTabNotice" class="whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600">
+                    <i class="fa-solid fa-bullhorn mr-1"></i> Send Notice
+                </button>
+                <button onclick="switchAdminTab('tabSetTarget')" id="navTabSetTarget" class="whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600">
+                    <i class="fa-solid fa-bullseye mr-1"></i> Assign Target
+                </button>
+                <button onclick="switchAdminTab('tabAttendanceTable')" id="navTabAttendance" class="whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600">
+                    <i class="fa-solid fa-table-list mr-1"></i> Attendance MIS
+                </button>
+                <button onclick="switchAdminTab('tabDirectory')" id="navTabDirectory" class="whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600">
+                    <i class="fa-solid fa-address-book mr-1"></i> BC Directory
+                </button>
+            </div>
+
+            <!-- TAB 1: Create BC ID -->
+            <div id="tabAddMember" class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 class="text-sm font-bold text-slate-900 mb-1">Create New BC ID in Firebase Cloud</h3>
+                <p class="text-[11px] text-slate-500 mb-4">Prefix <strong>WB58</strong> is auto-attached. BC can login immediately from any mobile.</p>
+
+                <form id="formAddBcMember" onsubmit="handleAddMember(event)" class="space-y-3 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">BC Code (Prefix: WB58) <span class="text-red-500">*</span></label>
+                        <div class="flex">
+                            <span class="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-slate-300 bg-slate-100 text-slate-700 font-mono font-bold">WB58</span>
+                            <input type="text" id="addBcCodeSuffix" required placeholder="1001" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-r-xl font-semibold uppercase">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">BC Full Name <span class="text-red-500">*</span></label>
+                        <input type="text" id="addBcName" required placeholder="Full Name" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Branch <span class="text-red-500">*</span></label>
+                            <input type="text" id="addBcBranch" required placeholder="Domkal" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Location <span class="text-red-500">*</span></label>
+                            <input type="text" id="addBcLocation" required placeholder="CSP Point" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Zone <span class="text-red-500">*</span></label>
+                            <input type="text" id="addBcZone" required placeholder="Baharampur" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Mobile Number <span class="text-red-500">*</span></label>
+                            <input type="tel" id="addBcMobile" required pattern="[0-9]{10}" placeholder="10-digit mobile" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Login Password <span class="text-red-500">*</span></label>
+                            <input type="text" id="addBcPassword" required placeholder="Set password" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btnSubmitAddBc" class="w-full mt-2 py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow-md text-xs sm:text-sm">
+                        Save BC ID to Cloud
+                    </button>
+                </form>
+            </div>
+
+            <!-- TAB 2: Broadcast Live Notice -->
+            <div id="tabNoticeBoard" class="hidden bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 class="text-sm font-bold text-slate-900 mb-1">Broadcast Live Notice to All BCs</h3>
+                <p class="text-[11px] text-slate-500 mb-4">This notice will immediately appear on every BC agent's dashboard banner.</p>
+
+                <form onsubmit="handleBroadcastNotice(event)" class="space-y-3 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Notice Message <span class="text-red-500">*</span></label>
+                        <textarea id="inputBroadcastNotice" rows="4" required placeholder="Write urgent directive, meeting alert, or campaign target notice..." class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-amber-500"></textarea>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold rounded-xl shadow-md text-xs sm:text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Publish Notice to All BCs</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- TAB 3: Assign Target -->
+            <div id="tabSetTarget" class="hidden bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 class="text-sm font-bold text-slate-900 mb-1">Assign Daily Targets to BCs</h3>
+                <p class="text-[11px] text-slate-500 mb-4">Configured figures will immediately reflect on all BC Portals.</p>
+
+                <form onsubmit="handleSaveTarget(event)" class="space-y-3 text-xs">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        <div class="p-3 bg-blue-50/70 border border-blue-200 rounded-xl">
+                            <label class="block font-bold text-blue-900 mb-1">PMJDY Quota</label>
+                            <input type="number" id="inputTargetPmjdy" min="0" required value="5" class="w-full text-center py-2 bg-white border border-blue-300 rounded-lg text-base font-bold text-blue-900 font-mono">
+                        </div>
+                        <div class="p-3 bg-amber-50/70 border border-amber-200 rounded-xl">
+                            <label class="block font-bold text-amber-900 mb-1">PMSBY Quota</label>
+                            <input type="number" id="inputTargetPmsby" min="0" required value="10" class="w-full text-center py-2 bg-white border border-amber-300 rounded-lg text-base font-bold text-amber-900 font-mono">
+                        </div>
+                        <div class="p-3 bg-purple-50/70 border border-purple-200 rounded-xl">
+                            <label class="block font-bold text-purple-900 mb-1">PMJJBY Quota</label>
+                            <input type="number" id="inputTargetPmjjby" min="0" required value="5" class="w-full text-center py-2 bg-white border border-purple-300 rounded-lg text-base font-bold text-purple-900 font-mono">
+                        </div>
+                        <div class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl">
+                            <label class="block font-bold text-emerald-900 mb-1">APY Quota</label>
+                            <input type="number" id="inputTargetApy" min="0" required value="3" class="w-full text-center py-2 bg-white border border-emerald-300 rounded-lg text-base font-bold text-emerald-900 font-mono">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Target Directives Note</label>
+                        <input type="text" id="inputTargetNote" placeholder="Special Campaign directives..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl">
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-xs sm:text-sm">
+                        Save & Broadcast Targets
+                    </button>
+                </form>
+            </div>
+
+            <!-- TAB 4: Master Attendance MIS Table -->
+            <div id="tabAttendanceTable" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-3.5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <h3 class="text-xs font-bold text-slate-900 uppercase">Master Attendance & Performance MIS</h3>
+                    <div class="flex gap-2">
+                        <input type="date" id="filterAttendanceDate" onchange="filterAttendanceTable()" class="text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-xl">
+                        <input type="text" id="searchAttendance" onkeyup="filterAttendanceTable()" placeholder="Search BC Code/Name..." class="text-xs px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl">
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 text-slate-600 uppercase font-bold border-b border-slate-200 text-[11px]">
+                            <tr>
+                                <th class="p-2.5">Date</th>
+                                <th class="p-2.5">BC Code</th>
+                                <th class="p-2.5">BC Name</th>
+                                <th class="p-2.5">Check-In / GPS</th>
+                                <th class="p-2.5">Check-Out</th>
+                                <th class="p-2.5 text-center bg-blue-50/50">PMJDY (E/A)</th>
+                                <th class="p-2.5 text-center bg-amber-50/50">PMSBY (E/A)</th>
+                                <th class="p-2.5 text-center bg-purple-50/50">PMJJBY (E/A)</th>
+                                <th class="p-2.5 text-center bg-emerald-50/50">APY (E/A)</th>
+                                <th class="p-2.5 text-center bg-slate-100">Total (E/A)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody" class="divide-y divide-slate-100 text-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 5: BC Directory & Password Edit -->
+            <div id="tabDirectory" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-3.5 border-b border-slate-200">
+                    <h3 class="text-xs font-bold text-slate-900 uppercase">Cloud BC Member Directory & Credentials</h3>
+                    <p class="text-[10px] text-slate-400">Manage BC logins, passwords, and time bypass controls in real time.</p>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 text-slate-600 uppercase font-bold border-b border-slate-200 text-[11px]">
+                            <tr>
+                                <th class="p-2.5">BC Code</th>
+                                <th class="p-2.5">Full Name</th>
+                                <th class="p-2.5">Branch</th>
+                                <th class="p-2.5">Mobile</th>
+                                <th class="p-2.5 font-mono">Password</th>
+                                <th class="p-2.5 text-center">Bypass Time</th>
+                                <th class="p-2.5 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="directoryTableBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ADMIN LOGIN MODAL -->
+    <div id="modalAdminLogin" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden border border-slate-200">
+            <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-7 h-7 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-xs">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <h3 class="text-xs sm:text-sm font-bold">Administrator Verification</h3>
+                </div>
+                <button type="button" onclick="closeAdminLoginModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleAdminAuth(event)" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Admin ID <span class="text-red-500">*</span></label>
+                    <input type="text" id="inputAdminUser" required autocomplete="off" placeholder="Enter Admin ID" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Security Password <span class="text-red-500">*</span></label>
+                    <input type="password" id="inputAdminPass" required autocomplete="off" placeholder="Enter Password" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs">
+                </div>
+                <div id="adminAuthError" class="hidden p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs">
+                    Incorrect Administrator ID or Password!
+                </div>
+                <div class="pt-1 flex gap-2">
+                    <button type="button" onclick="closeAdminLoginModal()" class="w-1/2 py-2.5 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold">Cancel</button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-slate-900 text-white font-bold rounded-xl text-xs shadow-md">Authenticate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADMIN EDIT MEMBER MODAL -->
+    <div id="modalEditMember" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-3">
+        <div class="bg-white rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden border border-slate-200">
+            <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+                <h3 class="text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-user-pen text-amber-400"></i> Edit BC & Password</h3>
+                <button onclick="closeEditMemberModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <form onsubmit="handleSaveEditedMember(event)" class="p-4 space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">BC Code</label>
+                    <input type="text" id="editBcCode" readonly class="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-xl font-mono font-bold">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">BC Full Name</label>
+                    <input type="text" id="editBcName" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl">
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div><label class="block font-semibold text-slate-700 mb-1">Branch</label><input type="text" id="editBcBranch" required class="w-full px-2 py-1.5 bg-slate-50 border border-slate-300 rounded-xl"></div>
+                    <div><label class="block font-semibold text-slate-700 mb-1">Location</label><input type="text" id="editBcLocation" required class="w-full px-2 py-1.5 bg-slate-50 border border-slate-300 rounded-xl"></div>
+                    <div><label class="block font-semibold text-slate-700 mb-1">Zone</label><input type="text" id="editBcZone" required class="w-full px-2 py-1.5 bg-slate-50 border border-slate-300 rounded-xl"></div>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Mobile</label>
+                    <input type="tel" id="editBcMobile" required pattern="[0-9]{10}" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono">
+                </div>
+                <div class="p-2.5 bg-amber-50 rounded-xl border border-amber-200">
+                    <label class="block font-bold text-amber-900 mb-1">Change Password</label>
+                    <input type="text" id="editBcPassword" required class="w-full px-3 py-2 bg-white border border-amber-300 rounded-xl font-mono font-bold">
+                </div>
+                <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <label class="block font-bold text-slate-800 text-[11px]">Bypass Timing Restriction</label>
+                        <span class="text-[10px] text-slate-500">Allows check-in/out anytime</span>
+                    </div>
+                    <input type="checkbox" id="editBcBypass" class="w-4 h-4 accent-emerald-600">
+                </div>
+                <div class="pt-2 flex justify-end space-x-2">
+                    <button type="button" onclick="closeEditMemberModal()" class="px-3 py-2 bg-slate-100 text-slate-700 rounded-xl font-semibold">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-xl">Save to Cloud</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast Popup -->
+    <div id="toastNotification" class="fixed top-5 left-1/2 transform -translate-x-1/2 -translate-y-24 opacity-0 transition-all duration-300 pointer-events-none z-50 w-11/12 max-w-sm">
+        <div class="bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2.5 text-xs border border-slate-700">
+            <span id="toastIcon" class="text-amber-400 text-sm"><i class="fa-solid fa-circle-check"></i></span>
+            <span id="toastMessage" class="font-medium flex-1">Notification</span>
+        </div>
+    </div>
+
+    <!-- FIREBASE MODULAR SDK v10 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, updateDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        // =========================================================================
+        // TODO: আপনার Firebase Console থেকে পাওয়া Config কোডটি নিচে পেস্ট করুন
+        // =========================================================================
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Live Cloud State Caches
+        let cloudMembers = [];
+        let cloudAttendance = [];
+        let cloudTargets = { pmjdy: 5, pmsby: 10, pmjjby: 5, apy: 3, note: "" };
+        let cloudNotice = { message: "Welcome to Mitr Sewa Field Portal. Complete your morning check-in on time.", time: "Live" };
+        
+        let currentAuthAgent = null;
+        let isAdminLoggedIn = false;
+
+        // Real-Time Firestore Listeners
+        onSnapshot(collection(db, "bc_members"), (snapshot) => {
+            cloudMembers = [];
+            snapshot.forEach(d => cloudMembers.push(d.data()));
+            document.getElementById('cloudStatusText').innerText = "Connected to Firebase Cloud (Live Sync Active)";
+            document.getElementById('memberCounterBadge').innerText = `${cloudMembers.length} BCs Active in Cloud`;
+            if (isAdminLoggedIn) renderAdminDashboard();
+            if (currentAuthAgent) renderAgentDashboard();
+        }, (err) => {
+            document.getElementById('cloudStatusText').innerText = "Firebase Config Pending - Update firebaseConfig in code";
+        });
+
+        onSnapshot(collection(db, "attendance_mis"), (snapshot) => {
+            cloudAttendance = [];
+            snapshot.forEach(d => cloudAttendance.push(d.data()));
+            if (isAdminLoggedIn) renderAdminDashboard();
+            if (currentAuthAgent) renderAgentDashboard();
+        });
+
+        onSnapshot(doc(db, "portal_config", "daily_targets"), (docSnap) => {
+            if (docSnap.exists()) {
+                cloudTargets = docSnap.data();
+                if (isAdminLoggedIn) renderAdminDashboard();
+                if (currentAuthAgent) renderAgentDashboard();
+            }
+        });
+
+        onSnapshot(doc(db, "portal_config", "live_notice"), (docSnap) => {
+            if (docSnap.exists()) {
+                cloudNotice = docSnap.data();
+                document.getElementById('bcNoticeMessage').innerText = cloudNotice.message || "";
+                document.getElementById('bcNoticeTime').innerText = cloudNotice.time || "Live";
+            }
+        });
+
+        function getTodayDateString() {
+            const today = new Date();
+            return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        }
+
+        const getGPSLocation = () => new Promise((resolve) => {
+            if (!navigator.geolocation) return resolve("");
+            navigator.geolocation.getCurrentPosition(
+                (pos) => resolve(`${pos.coords.latitude.toFixed(5)},${pos.coords.longitude.toFixed(5)}`),
+                () => resolve(""),
+                { enableHighAccuracy: true, timeout: 6000 }
+            );
+        });
+
+        window.openAdminLoginModal = () => {
+            document.getElementById('inputAdminUser').value = '';
+            document.getElementById('inputAdminPass').value = '';
+            document.getElementById('adminAuthError').classList.add('hidden');
+            document.getElementById('modalAdminLogin').classList.remove('hidden');
+        };
+        window.closeAdminLoginModal = () => document.getElementById('modalAdminLogin').classList.add('hidden');
+
+        window.handleAdminAuth = (e) => {
+            e.preventDefault();
+            const user = document.getElementById('inputAdminUser').value.trim();
+            const pass = document.getElementById('inputAdminPass').value.trim();
+            if (user === 'admin' && pass === 'admin123') {
+                isAdminLoggedIn = true;
+                closeAdminLoginModal();
+                switchToAdminConsole();
+                showToast("Administrator Authenticated", "success");
+            } else {
+                document.getElementById('adminAuthError').classList.remove('hidden');
+            }
+        };
+
+        window.switchToAdminConsole = () => {
+            if (!isAdminLoggedIn) return openAdminLoginModal();
+            document.getElementById('headerPortalTitle').innerText = "Admin Desk";
+            document.getElementById('headerPortalSubtitle').innerText = "Firebase Cloud • Territory MIS";
+            document.getElementById('btnOpenAdminAuth').classList.add('hidden');
+            document.getElementById('btnAgentLogout').classList.add('hidden');
+            document.getElementById('adminHeaderControls').classList.remove('hidden');
+            document.getElementById('containerBcSection').classList.add('hidden');
+            document.getElementById('containerAdminSection').classList.remove('hidden');
+            renderAdminDashboard();
+        };
+
+        window.switchToAgentPortal = () => {
+            document.getElementById('headerPortalTitle').innerText = "BC Portal";
+            document.getElementById('headerPortalSubtitle').innerText = "Insurance & Fintech Pvt. Ltd.";
+            document.getElementById('btnOpenAdminAuth').classList.remove('hidden');
+            document.getElementById('adminHeaderControls').classList.add('hidden');
+            if (currentAuthAgent) document.getElementById('btnAgentLogout').classList.remove('hidden');
+            document.getElementById('containerAdminSection').classList.add('hidden');
+            document.getElementById('containerBcSection').classList.remove('hidden');
+            if (currentAuthAgent) renderAgentDashboard();
+        };
+
+        window.logoutAdmin = () => {
+            isAdminLoggedIn = false;
+            switchToAgentPortal();
+            showToast("Admin session ended", "info");
+        };
+
+        window.handleAgentLogin = (e) => {
+            e.preventDefault();
+            let rawCode = document.getElementById('loginBcCodeSuffix').value.trim().toUpperCase().replace(/^WB58/i, '');
+            const fullBcCode = 'WB58' + rawCode;
+            const password = document.getElementById('loginBcPassword').value.trim();
+            const errBox = document.getElementById('userLoginError');
+            const errText = document.getElementById('userLoginErrorMsg');
+
+            const matched = cloudMembers.find(m => m.code === fullBcCode && String(m.password) === password);
+            if (matched) {
+                errBox.classList.add('hidden');
+                currentAuthAgent = matched;
+                document.getElementById('btnAgentLogout').classList.remove('hidden');
+                document.getElementById('viewBcLogin').classList.add('hidden');
+                document.getElementById('viewBcDashboard').classList.remove('hidden');
+                showToast(`Welcome, ${matched.name}!`, 'success');
+                renderAgentDashboard();
+            } else {
+                errText.innerText = `Invalid BC Code (${fullBcCode}) or Password!`;
+                errBox.classList.remove('hidden');
+            }
+        };
+
+        window.logoutAgent = () => {
+            currentAuthAgent = null;
+            document.getElementById('btnAgentLogout').classList.add('hidden');
+            document.getElementById('viewBcDashboard').classList.add('hidden');
+            document.getElementById('viewBcLogin').classList.remove('hidden');
+            showToast('Signed out', 'info');
+        };
+
+        function isCheckInTimeValid(bc) {
+            if (bc?.bypassTime) return true;
+            const now = new Date();
+            const mins = now.getHours() * 60 + now.getMinutes();
+            return mins >= 480 && mins <= 600; // 08:00 AM - 10:00 AM
+        }
+
+        function isCheckOutTimeValid(bc) {
+            if (bc?.bypassTime) return true;
+            const now = new Date();
+            const mins = now.getHours() * 60 + now.getMinutes();
+            return mins >= 1080 && mins <= 1200; // 06:00 PM - 08:00 PM
+        }
+
+        function renderAgentDashboard() {
+            if (!currentAuthAgent) return;
+            const freshBc = cloudMembers.find(m => m.code === currentAuthAgent.code) || currentAuthAgent;
+            currentAuthAgent = freshBc;
+
+            document.getElementById('userNameDisplay').innerText = freshBc.name;
+            document.getElementById('userAvatarText').innerText = (freshBc.name || 'BC').substring(0, 2).toUpperCase();
+            document.getElementById('userBcCodeDisplay').innerText = freshBc.code;
+            document.getElementById('userBranchDisplay').innerText = freshBc.branch;
+            document.getElementById('userLocationDisplay').innerText = freshBc.location || 'N/A';
+            document.getElementById('userZoneDisplay').innerText = freshBc.zone || 'N/A';
+            document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+            const today = getTodayDateString();
+            const todayRecord = cloudAttendance.find(r => r.bcCode === freshBc.code && r.date === today);
+            const bcAllRecords = cloudAttendance.filter(r => r.bcCode === freshBc.code);
+
+            let pEnr = 0, pAuth = 0, sEnr = 0, sAuth = 0, jEnr = 0, jAuth = 0, aEnr = 0, aAuth = 0;
+            bcAllRecords.forEach(r => {
+                pEnr += Number(r.pmjdyEnroll) || 0; pAuth += Number(r.pmjdyAuth) || 0;
+                sEnr += Number(r.pmsbyEnroll) || 0; sAuth += Number(r.pmsbyAuth) || 0;
+                jEnr += Number(r.pmjjbyEnroll) || 0; jAuth += Number(r.pmjjbyAuth) || 0;
+                aEnr += Number(r.apyEnroll) || 0; aAuth += Number(r.apyAuth) || 0;
+            });
+
+            document.getElementById('summaryPmjdyEnr').innerText = pEnr; document.getElementById('summaryPmjdyAuth').innerText = pAuth;
+            document.getElementById('summaryPmsbyEnr').innerText = sEnr; document.getElementById('summaryPmsbyAuth').innerText = sAuth;
+            document.getElementById('summaryPmjjbyEnr').innerText = jEnr; document.getElementById('summaryPmjjbyAuth').innerText = jAuth;
+            document.getElementById('summaryApyEnr').innerText = aEnr; document.getElementById('summaryApyAuth').innerText = aAuth;
+            document.getElementById('summaryGrandEnrolled').innerText = (pEnr + sEnr + jEnr + aEnr) + ' Enrolled';
+            document.getElementById('summaryGrandAuth').innerText = (pAuth + sAuth + jAuth + aAuth) + ' Auth';
+
+            document.getElementById('targetCardPmjdy').innerText = cloudTargets.pmjdy || 0;
+            document.getElementById('targetCardPmsby').innerText = cloudTargets.pmsby || 0;
+            document.getElementById('targetCardPmjjby').innerText = cloudTargets.pmjjby || 0;
+            document.getElementById('targetCardApy').innerText = cloudTargets.apy || 0;
+            document.getElementById('targetTotalSum').innerText = (Number(cloudTargets.pmjdy)||0) + (Number(cloudTargets.pmsby)||0) + (Number(cloudTargets.pmjjby)||0) + (Number(cloudTargets.apy)||0);
+            if (cloudTargets.note) document.getElementById('targetAdminNote').innerText = cloudTargets.note;
+
+            const adminBypassBox = document.getElementById('adminBypassNoticeBox');
+            freshBc.bypassTime ? adminBypassBox.classList.remove('hidden') : adminBypassBox.classList.add('hidden');
+
+            const btnCheckIn = document.getElementById('btnCheckIn');
+            const btnTriggerCheckOut = document.getElementById('btnTriggerCheckOut');
+            const checkInInfoBox = document.getElementById('checkInInfoBox');
+            const checkOutInfoBox = document.getElementById('checkOutInfoBox');
+            const statusBadge = document.getElementById('dailyStatusBadge');
+            const btnSubmitEod = document.getElementById('btnSubmitEodCheckout');
+            const checkOutNotice = document.getElementById('checkOutNoticeBox');
+            const btnHeaderCheckIn = document.getElementById('btnHeaderCheckIn');
+            const headerActionText = document.getElementById('headerActionText');
+
+            const canCheckIn = isCheckInTimeValid(freshBc);
+
+            if (!todayRecord) {
+                btnCheckIn.disabled = !canCheckIn;
+                btnCheckIn.classList.remove('hidden');
+                btnTriggerCheckOut.classList.add('hidden');
+                btnHeaderCheckIn.disabled = !canCheckIn;
+                headerActionText.innerText = "Quick Check-In Now";
+                checkInInfoBox.classList.add('hidden');
+                checkOutInfoBox.classList.add('hidden');
+                statusBadge.innerText = "Check-In Pending";
+                btnSubmitEod.disabled = true;
+                checkOutNotice.classList.remove('hidden');
+                checkOutNotice.innerHTML = !canCheckIn 
+                    ? `<i class="fa-solid fa-clock text-amber-600 mr-1"></i> Check-in window is 08:00 AM - 10:00 AM.`
+                    : `<i class="fa-solid fa-triangle-exclamation text-amber-600 mr-1"></i> Check-In required before EOD report.`;
+            } else if (!todayRecord.checkOutTime) {
+                btnCheckIn.classList.add('hidden');
+                btnTriggerCheckOut.classList.remove('hidden');
+                btnHeaderCheckIn.disabled = false;
+                headerActionText.innerText = "Proceed to Check-Out";
+                checkInInfoBox.classList.remove('hidden');
+                document.getElementById('checkInTimeRecorded').innerText = todayRecord.checkInTime;
+                checkOutInfoBox.classList.add('hidden');
+                statusBadge.innerText = "Checked In (On Duty)";
+                const canCheckOut = isCheckOutTimeValid(freshBc);
+                btnSubmitEod.disabled = !canCheckOut;
+                if (canCheckOut) checkOutNotice.classList.add('hidden');
+                else {
+                    checkOutNotice.classList.remove('hidden');
+                    checkOutNotice.innerHTML = `<i class="fa-solid fa-clock text-amber-600 mr-1"></i> Checkout window is 06:00 PM - 08:00 PM.`;
+                }
+            } else {
+                btnCheckIn.classList.add('hidden');
+                btnTriggerCheckOut.classList.add('hidden');
+                btnHeaderCheckIn.disabled = true;
+                headerActionText.innerText = "Day Completed";
+                checkInInfoBox.classList.remove('hidden');
+                document.getElementById('checkInTimeRecorded').innerText = todayRecord.checkInTime;
+                checkOutInfoBox.classList.remove('hidden');
+                document.getElementById('checkOutTimeRecorded').innerText = todayRecord.checkOutTime;
+                statusBadge.innerText = "Completed";
+                btnSubmitEod.disabled = true;
+                checkOutNotice.classList.remove('hidden');
+                checkOutNotice.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> Today's EOD Report and checkout completed.`;
+            }
+        }
+
+        window.handleHeaderAction = () => {
+            const today = getTodayDateString();
+            const todayRecord = cloudAttendance.find(r => r.bcCode === currentAuthAgent?.code && r.date === today);
+            if (!todayRecord) handleCheckIn();
+            else if (!todayRecord.checkOutTime) scrollToEodReport();
+        };
+
+        window.scrollToEodReport = () => {
+            document.getElementById('sectionEodReportCard')?.scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.handleCheckIn = async () => {
+            if (!currentAuthAgent) return;
+            if (!isCheckInTimeValid(currentAuthAgent)) return showToast("Check-in allowed only 08:00 AM - 10:00 AM", "error");
+
+            const btn = document.getElementById('btnCheckIn');
+            btn.disabled = true;
+            const gps = await getGPSLocation();
+            const now = new Date();
+            const today = getTodayDateString();
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            const docId = `${currentAuthAgent.code}_${today}`;
+
+            try {
+                await setDoc(doc(db, "attendance_mis", docId), {
+                    date: today,
+                    bcCode: currentAuthAgent.code,
+                    bcName: currentAuthAgent.name,
+                    branch: currentAuthAgent.branch,
+                    location: currentAuthAgent.location || '',
+                    zone: currentAuthAgent.zone || '',
+                    mobile: currentAuthAgent.mobile,
+                    checkInTime: timeString,
+                    checkInGPS: gps,
+                    checkOutTime: null,
+                    pmjdyEnroll: 0, pmjdyAuth: 0,
+                    pmsbyEnroll: 0, pmsbyAuth: 0,
+                    pmjjbyEnroll: 0, pmjjbyAuth: 0,
+                    apyEnroll: 0, apyAuth: 0,
+                    remarks: "",
+                    status: "Checked In"
+                });
+                showToast("Morning Check-In synced to Cloud!", "success");
+            } catch (err) {
+                showToast("Check-In failed: " + err.message, "error");
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
+        window.handleEodAndCheckout = async (e) => {
+            e.preventDefault();
+            if (!currentAuthAgent || !isCheckOutTimeValid(currentAuthAgent)) return;
+
+            const today = getTodayDateString();
+            const docId = `${currentAuthAgent.code}_${today}`;
+            const gps = await getGPSLocation();
+            const timeString = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+
+            try {
+                await updateDoc(doc(db, "attendance_mis", docId), {
+                    checkOutTime: timeString,
+                    checkOutGPS: gps,
+                    pmjdyEnroll: Number(document.getElementById('repPmjdyEnroll').value) || 0,
+                    pmjdyAuth: Number(document.getElementById('repPmjdyAuth').value) || 0,
+                    pmsbyEnroll: Number(document.getElementById('repPmsbyEnroll').value) || 0,
+                    pmsbyAuth: Number(document.getElementById('repPmsbyAuth').value) || 0,
+                    pmjjbyEnroll: Number(document.getElementById('repPmjjbyEnroll').value) || 0,
+                    pmjjbyAuth: Number(document.getElementById('repPmjjbyAuth').value) || 0,
+                    apyEnroll: Number(document.getElementById('repApyEnroll').value) || 0,
+                    apyAuth: Number(document.getElementById('repApyAuth').value) || 0,
+                    remarks: document.getElementById('repRemarks').value.trim(),
+                    status: "Completed"
+                });
+                showToast("EOD Report & Checkout synced to Cloud!", "success");
+            } catch (err) {
+                showToast("Error submitting EOD: " + err.message, "error");
+            }
+        };
+
+        // ADMIN FUNCTIONS
+        window.switchAdminTab = (tabId) => {
+            ['tabAddMember', 'tabNoticeBoard', 'tabSetTarget', 'tabAttendanceTable', 'tabDirectory'].forEach(id => {
+                document.getElementById(id)?.classList.add('hidden');
+            });
+            document.getElementById(tabId)?.classList.remove('hidden');
+
+            const map = {
+                'tabAddMember': 'navTabAddMember',
+                'tabNoticeBoard': 'navTabNotice',
+                'tabSetTarget': 'navTabSetTarget',
+                'tabAttendanceTable': 'navTabAttendance',
+                'tabDirectory': 'navTabDirectory'
+            };
+            Object.values(map).forEach(btnId => {
+                const el = document.getElementById(btnId);
+                if (el) el.className = "whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600";
+            });
+            const activeBtn = document.getElementById(map[tabId]);
+            if (activeBtn) activeBtn.className = "whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 shadow-sm";
+        };
+
+        window.handleAddMember = async (e) => {
+            e.preventDefault();
+            const suffix = document.getElementById('addBcCodeSuffix').value.trim().toUpperCase().replace(/^WB58/i, '');
+            const fullBcCode = 'WB58' + suffix;
+            if (cloudMembers.some(m => m.code === fullBcCode)) return showToast(`BC Code ${fullBcCode} already exists!`, "error");
+
+            const newMember = {
+                code: fullBcCode,
+                name: document.getElementById('addBcName').value.trim(),
+                branch: document.getElementById('addBcBranch').value.trim(),
+                location: document.getElementById('addBcLocation').value.trim(),
+                zone: document.getElementById('addBcZone').value.trim(),
+                mobile: document.getElementById('addBcMobile').value.trim(),
+                password: document.getElementById('addBcPassword').value.trim(),
+                bypassTime: false,
+                createdAt: new Date().toLocaleDateString('en-GB')
+            };
+
+            try {
+                await setDoc(doc(db, "bc_members", fullBcCode), newMember);
+                e.target.reset();
+                showToast(`BC ${newMember.name} (${fullBcCode}) created in Cloud!`, "success");
+                switchAdminTab('tabDirectory');
+            } catch (err) {
+                showToast("Failed to save BC: " + err.message, "error");
+            }
+        };
+
+        window.handleBroadcastNotice = async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById('inputBroadcastNotice').value.trim();
+            try {
+                await setDoc(doc(db, "portal_config", "live_notice"), {
+                    message: msg,
+                    time: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+                });
+                e.target.reset();
+                showToast("Notice published live to all BCs!", "success");
+            } catch (err) {
+                showToast("Failed to send notice: " + err.message, "error");
+            }
+        };
+
+        window.handleSaveTarget = async (e) => {
+            e.preventDefault();
+            try {
+                await setDoc(doc(db, "portal_config", "daily_targets"), {
+                    pmjdy: Number(document.getElementById('inputTargetPmjdy').value) || 0,
+                    pmsby: Number(document.getElementById('inputTargetPmsby').value) || 0,
+                    pmjjby: Number(document.getElementById('inputTargetPmjjby').value) || 0,
+                    apy: Number(document.getElementById('inputTargetApy').value) || 0,
+                    note: document.getElementById('inputTargetNote').value.trim()
+                });
+                showToast("Targets updated live across all BC devices!", "success");
+            } catch (err) {
+                showToast("Error saving targets: " + err.message, "error");
+            }
+        };
+
+        window.toggleMemberBypass = async (bcCode, enable) => {
+            await updateDoc(doc(db, "bc_members", bcCode), { bypassTime: enable });
+            showToast(`Time Bypass ${enable ? 'Enabled' : 'Disabled'} for ${bcCode}`, "info");
+        };
+
+        window.toggleAllBypass = async (enable) => {
+            for (const m of cloudMembers) {
+                await updateDoc(doc(db, "bc_members", m.code), { bypassTime: enable });
+            }
+            showToast(`Time Bypass ${enable ? 'Enabled' : 'Disabled'} for all BCs!`, "success");
+        };
+
+        window.deleteMember = async (code) => {
+            if (!confirm(`Delete BC ${code} from Cloud?`)) return;
+            await deleteDoc(doc(db, "bc_members", code));
+            showToast(`BC ${code} deleted`, "info");
+        };
+
+        window.openEditMemberModal = (bcCode) => {
+            const member = cloudMembers.find(m => m.code === bcCode);
+            if (!member) return;
+            document.getElementById('editBcCode').value = member.code;
+            document.getElementById('editBcName').value = member.name;
+            document.getElementById('editBcBranch').value = member.branch;
+            document.getElementById('editBcLocation').value = member.location || '';
+            document.getElementById('editBcZone').value = member.zone || '';
+            document.getElementById('editBcMobile').value = member.mobile;
+            document.getElementById('editBcPassword').value = member.password;
+            document.getElementById('editBcBypass').checked = !!member.bypassTime;
+            document.getElementById('modalEditMember').classList.remove('hidden');
+        };
+        window.closeEditMemberModal = () => document.getElementById('modalEditMember').classList.add('hidden');
+
+        window.handleSaveEditedMember = async (e) => {
+            e.preventDefault();
+            const code = document.getElementById('editBcCode').value;
+            await updateDoc(doc(db, "bc_members", code), {
+                name: document.getElementById('editBcName').value.trim(),
+                branch: document.getElementById('editBcBranch').value.trim(),
+                location: document.getElementById('editBcLocation').value.trim(),
+                zone: document.getElementById('editBcZone').value.trim(),
+                mobile: document.getElementById('editBcMobile').value.trim(),
+                password: document.getElementById('editBcPassword').value.trim(),
+                bypassTime: document.getElementById('editBcBypass').checked
+            });
+            closeEditMemberModal();
+            showToast(`BC ${code} updated in Cloud!`, "success");
+        };
+
+        function renderAdminDashboard() {
+            const today = getTodayDateString();
+            document.getElementById('statTotalMembers').innerText = cloudMembers.length;
+            const todayRecords = cloudAttendance.filter(r => r.date === today);
+            document.getElementById('statCheckedIn').innerText = todayRecords.length;
+            document.getElementById('statCheckedOut').innerText = todayRecords.filter(r => r.status === 'Completed').length;
+
+            let totalSchemesToday = 0;
+            todayRecords.forEach(r => totalSchemesToday += (r.pmjdyEnroll||0) + (r.pmsbyEnroll||0) + (r.pmjjbyEnroll||0) + (r.apyEnroll||0));
+            document.getElementById('statTotalEnrollments').innerText = totalSchemesToday;
+
+            const dirTbody = document.getElementById('directoryTableBody');
+            dirTbody.innerHTML = cloudMembers.length === 0 
+                ? `<tr><td colspan="7" class="p-4 text-center text-slate-400">No BC IDs in Cloud yet. Create one in "Create BC ID" tab.</td></tr>`
+                : cloudMembers.map(m => `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-2.5 font-bold font-mono text-blue-700">${m.code}</td>
+                        <td class="p-2.5 font-semibold text-slate-800">${m.name}</td>
+                        <td class="p-2.5">${m.branch}</td>
+                        <td class="p-2.5 font-mono">${m.mobile}</td>
+                        <td class="p-2.5 font-mono font-semibold bg-amber-50/50">${m.password}</td>
+                        <td class="p-2.5 text-center">
+                            <input type="checkbox" onchange="toggleMemberBypass('${m.code}', this.checked)" ${m.bypassTime ? 'checked' : ''} class="w-4 h-4 accent-emerald-600">
+                        </td>
+                        <td class="p-2.5 text-center whitespace-nowrap">
+                            <button onclick="openEditMemberModal('${m.code}')" class="text-amber-700 bg-amber-100 px-2 py-1 rounded text-[11px] font-bold mr-1">Edit</button>
+                            <button onclick="deleteMember('${m.code}')" class="text-rose-600 p-1"><i class="fa-solid fa-trash-can"></i></button>
+                        </td>
+                    </tr>`).join('');
+
+            filterAttendanceTable();
+        }
+
+        function renderAttendanceRows(list) {
+            const attTbody = document.getElementById('attendanceTableBody');
+            if (!attTbody) return;
+            if (list.length === 0) {
+                attTbody.innerHTML = `<tr><td colspan="10" class="p-4 text-center text-slate-400">No attendance logs matching filter.</td></tr>`;
+                return;
+            }
+            attTbody.innerHTML = [...list].reverse().map(r => {
+                const totalEnr = (r.pmjdyEnroll||0) + (r.pmsbyEnroll||0) + (r.pmjjbyEnroll||0) + (r.apyEnroll||0);
+                const totalAuth = (r.pmjdyAuth||0) + (r.pmsbyAuth||0) + (r.pmjjbyAuth||0) + (r.apyAuth||0);
+                const gpsTag = r.checkInGPS ? `<a href="https://maps.google.com/?q=${r.checkInGPS}" target="_blank" class="text-blue-600 underline text-[10px] block"><i class="fa-solid fa-location-dot"></i> Map</a>` : '';
+                return `
+                <tr class="hover:bg-slate-50 text-[11px]">
+                    <td class="p-2.5 font-mono">${r.date}</td>
+                    <td class="p-2.5 font-bold font-mono text-blue-700">${r.bcCode}</td>
+                    <td class="p-2.5">${r.bcName}</td>
+                    <td class="p-2.5 font-mono text-emerald-700 font-semibold">${r.checkInTime || '-'}${gpsTag}</td>
+                    <td class="p-2.5 font-mono text-blue-700 font-semibold">${r.checkOutTime || '<span class="text-amber-500">Pending</span>'}</td>
+                    <td class="p-2.5 text-center bg-blue-50/30">${r.pmjdyEnroll||0} / ${r.pmjdyAuth||0}</td>
+                    <td class="p-2.5 text-center bg-amber-50/30">${r.pmsbyEnroll||0} / ${r.pmsbyAuth||0}</td>
+                    <td class="p-2.5 text-center bg-purple-50/30">${r.pmjjbyEnroll||0} / ${r.pmjjbyAuth||0}</td>
+                    <td class="p-2.5 text-center bg-emerald-50/30">${r.apyEnroll||0} / ${r.apyAuth||0}</td>
+                    <td class="p-2.5 text-center bg-slate-100 font-bold">${totalEnr} / ${totalAuth}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        window.filterAttendanceTable = () => {
+            const q = document.getElementById('searchAttendance')?.value.toLowerCase() || '';
+            const dateFilter = document.getElementById('filterAttendanceDate')?.value || '';
+            const filtered = cloudAttendance.filter(r => {
+                const matchQuery = (r.bcCode||'').toLowerCase().includes(q) || (r.bcName||'').toLowerCase().includes(q);
+                const matchDate = !dateFilter || r.date === dateFilter;
+                return matchQuery && matchDate;
+            });
+            renderAttendanceRows(filtered);
+        };
+
+        window.exportToCsv = () => {
+            if (!cloudAttendance.length) return showToast("No records to export!", "info");
+            const headers = ["Date", "BC Code", "BC Name", "Branch", "Check-In", "GPS", "Check-Out", "PMJDY Enroll", "PMJDY Auth", "PMSBY Enroll", "PMSBY Auth", "PMJJBY Enroll", "PMJJBY Auth", "APY Enroll", "APY Auth", "Status"];
+            const rows = cloudAttendance.map(r => [
+                r.date, r.bcCode, `"${r.bcName}"`, `"${r.branch}"`, `"${r.checkInTime||''}"`, `"${r.checkInGPS||''}"`, `"${r.checkOutTime||''}"`,
+                r.pmjdyEnroll||0, r.pmjdyAuth||0, r.pmsbyEnroll||0, r.pmsbyAuth||0, r.pmjjbyEnroll||0, r.pmjjbyAuth||0, r.apyEnroll||0, r.apyAuth||0, r.status||''
+            ]);
+            const csv = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+            const link = document.createElement("a");
+            link.href = encodeURI(csv);
+            link.download = `Mitr_Sewa_Cloud_MIS_${getTodayDateString()}.csv`;
+            link.click();
+        };
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastMessage').innerText = message;
+            toast.classList.remove('-translate-y-24', 'opacity-0');
+            setTimeout(() => toast.classList.add('-translate-y-24', 'opacity-0'), 3000);
+        }
+    </script>
+</body>
+</html>
