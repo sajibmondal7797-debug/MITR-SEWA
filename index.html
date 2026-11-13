@@ -715,16 +715,15 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, doc, setDoc, updateDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        // =========================================================================
-        // TODO: আপনার Firebase Console থেকে পাওয়া Config কোডটি নিচে পেস্ট করুন
-        // =========================================================================
+        // Mitr Sewa Live Firebase Configuration
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyCtLH21qYJIM8Y81bcEN8f6lgVKN9tE7S8",
+            authDomain: "mitr-sewa-bc-portal.firebaseapp.com",
+            projectId: "mitr-sewa-bc-portal",
+            storageBucket: "mitr-sewa-bc-portal.firebasestorage.app",
+            messagingSenderId: "774989830222",
+            appId: "1:774989830222:web:52b053f2249c2b6b998b1f",
+            measurementId: "G-J1J4RSPSHW"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -748,7 +747,7 @@
             if (isAdminLoggedIn) renderAdminDashboard();
             if (currentAuthAgent) renderAgentDashboard();
         }, (err) => {
-            document.getElementById('cloudStatusText').innerText = "Firebase Config Pending - Update firebaseConfig in code";
+            document.getElementById('cloudStatusText').innerText = "Firebase Sync Error: " + err.message;
         });
 
         onSnapshot(collection(db, "attendance_mis"), (snapshot) => {
