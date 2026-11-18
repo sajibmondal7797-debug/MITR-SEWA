@@ -239,7 +239,7 @@
                             <i class="fa-solid fa-fingerprint"></i>
                             <span id="headerActionText">Quick Check-In</span>
                         </button>
-                        <button onclick="scrollToLeaveSection()" class="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/40 text-xs font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-[0.98]">
+                        <button onclick="openLeaveRequestModal()" class="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/40 text-xs font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 active:scale-[0.98]">
                             <i class="fa-solid fa-calendar-minus"></i>
                             <span>Apply Leave</span>
                         </button>
@@ -259,56 +259,83 @@
                             </div>
                             <div>
                                 <h3 class="text-xs sm:text-sm font-extrabold text-white tracking-wide flex items-center gap-1.5">
-                                    <span>Today's Assigned Target</span>
+                                    <span>Today's Assigned Target & Commitment</span>
                                     <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
                                 </h3>
-                                <p class="text-[10px] text-amber-200/85 truncate max-w-[200px]" id="targetAdminNote">Directives from Territory Management</p>
+                                <p class="text-[10px] text-amber-200/85 truncate max-w-[210px]" id="targetAdminNote">Directives from Territory Management</p>
                             </div>
                         </div>
-                        <span class="text-[11px] font-mono bg-gradient-to-r from-amber-500/25 to-yellow-500/20 text-amber-200 px-2.5 py-1 rounded-lg border border-amber-400/40 font-bold shadow-inner">
-                            Total: <strong id="targetTotalSum" class="text-white text-xs">0</strong>
-                        </span>
+                        <div class="text-right space-y-0.5">
+                            <span class="block text-[10px] font-mono bg-amber-500/25 text-amber-200 px-2 py-0.5 rounded border border-amber-400/40 font-bold">
+                                Target: <strong id="targetTotalSum" class="text-white">0</strong>
+                            </span>
+                            <span class="block text-[10px] font-mono bg-emerald-500/25 text-emerald-200 px-2 py-0.5 rounded border border-emerald-400/40 font-bold">
+                                Commit: <strong id="commitmentTotalSum" class="text-white">0</strong>
+                            </span>
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2.5 mt-3 text-xs relative z-10">
-                        <div class="group bg-gradient-to-br from-slate-900/95 to-blue-950/60 border border-blue-400/40 hover:border-blue-400 rounded-xl p-2.5 flex justify-between items-center transition-all duration-300 hover:scale-[1.02] shadow-sm">
+                    <!-- Column Header Legend -->
+                    <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-amber-200/80 mt-2.5 px-1 relative z-10">
+                        <span>Scheme Segment</span>
+                        <span>Target / My Commitment</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-1.5 text-xs relative z-10">
+                        <div class="group bg-gradient-to-br from-slate-900/95 to-blue-950/60 border border-blue-400/40 hover:border-blue-400 rounded-xl p-2.5 flex justify-between items-center transition-all duration-300 shadow-sm">
                             <div class="flex items-center gap-2">
                                 <span class="w-6 h-6 rounded-lg bg-blue-500/20 border border-blue-400/30 text-blue-300 flex items-center justify-center text-[10px]">
                                     <i class="fa-solid fa-building-columns"></i>
                                 </span>
                                 <span class="text-[11px] font-extrabold text-blue-300 tracking-wide">PMJDY</span>
                             </div>
-                            <span id="targetCardPmjdy" class="font-mono font-black text-white text-base bg-blue-500/20 px-2 py-0.5 rounded-md border border-blue-400/30">0</span>
-                        </div>
-
-                        <div class="group bg-gradient-to-br from-slate-900/95 to-amber-950/60 border border-amber-400/40 hover:border-amber-400 rounded-xl p-2.5 flex justify-between items-center transition-all duration-300 hover:scale-[1.02] shadow-sm">
-                            <div class="flex items-center gap-2">
-                                <span class="w-6 h-6 rounded-lg bg-amber-500/20 border border-amber-400/30 text-amber-300 flex items-center justify-center text-[10px]">
-                                    <i class="fa-solid fa-shield-halved"></i>
-                                </span>
-                                <span class="text-[11px] font-extrabold text-amber-300 tracking-wide">PMSBY</span>
+                            <div class="flex items-center gap-1.5 font-mono">
+                                <span id="targetCardPmjdy" class="font-black text-white text-sm bg-blue-500/20 px-2 py-0.5 rounded-md border border-blue-400/30" title="Assigned Target">0</span>
+                                <span class="text-slate-400 font-bold">/</span>
+                                <span id="commitCardPmjdy" class="font-black text-emerald-300 text-sm bg-emerald-500/20 px-2 py-0.5 rounded-md border border-emerald-400/40" title="BC Commitment">-</span>
                             </div>
-                            <span id="targetCardPmsby" class="font-mono font-black text-white text-base bg-amber-500/20 px-2 py-0.5 rounded-md border border-amber-400/30">0</span>
                         </div>
 
-                        <div class="group bg-gradient-to-br from-slate-900/95 to-purple-950/60 border border-purple-400/40 hover:border-purple-400 rounded-xl p-2.5 flex justify-between items-center transition-all duration-300 hover:scale-[1.02] shadow-sm">
+                        <div class="group bg-gradient-to-br from-slate-900/95 to-purple-950/60 border border-purple-400/40 hover:border-purple-400 rounded-xl p-2.5 flex justify-between items-center transition-all duration-300 shadow-sm">
                             <div class="flex items-center gap-2">
                                 <span class="w-6 h-6 rounded-lg bg-purple-500/20 border border-purple-400/30 text-purple-300 flex items-center justify-center text-[10px]">
                                     <i class="fa-solid fa-heart-pulse"></i>
                                 </span>
                                 <span class="text-[11px] font-extrabold text-purple-300 tracking-wide">PMJJBY</span>
                             </div>
-                            <span id="targetCardPmjjby" class="font-mono font-black text-white text-base bg-purple-500/20 px-2 py-0.5 rounded-md border border-purple-400/30">0</span>
+                            <div class="flex items-center gap-1.5 font-mono">
+                                <span id="targetCardPmjjby" class="font-black text-white text-sm bg-purple-500/20 px-2 py-0.5 rounded-md border border-purple-400/30" title="Assigned Target">0</span>
+                                <span class="text-slate-400 font-bold">/</span>
+                                <span id="commitCardPmjjby" class="font-black text-emerald-300 text-sm bg-emerald-500/20 px-2 py-0.5 rounded-md border border-emerald-400/40" title="BC Commitment">-</span>
+                            </div>
                         </div>
 
-                        <div class="group bg-gradient-to-br from-slate-900/95 to-emerald-950/60 border border-emerald-400/40 hover:border-emerald-400 rounded-xl p-2.5 flex justify-between items-center transition-all duration-300 hover:scale-[1.02] shadow-sm">
+                        <div class="group bg-gradient-to-br from-slate-900/95 to-amber-950/60 border border-amber-400/40 hover:border-amber-400 rounded-xl p-2.5 flex justify-between items-center transition-all duration-300 shadow-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-lg bg-amber-500/20 border border-amber-400/30 text-amber-300 flex items-center justify-center text-[10px]">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                </span>
+                                <span class="text-[11px] font-extrabold text-amber-300 tracking-wide">PMSBY</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 font-mono">
+                                <span id="targetCardPmsby" class="font-black text-white text-sm bg-amber-500/20 px-2 py-0.5 rounded-md border border-amber-400/30" title="Assigned Target">0</span>
+                                <span class="text-slate-400 font-bold">/</span>
+                                <span id="commitCardPmsby" class="font-black text-emerald-300 text-sm bg-emerald-500/20 px-2 py-0.5 rounded-md border border-emerald-400/40" title="BC Commitment">-</span>
+                            </div>
+                        </div>
+
+                        <div class="group bg-gradient-to-br from-slate-900/95 to-emerald-950/60 border border-emerald-400/40 hover:border-emerald-400 rounded-xl p-2.5 flex justify-between items-center transition-all duration-300 shadow-sm">
                             <div class="flex items-center gap-2">
                                 <span class="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 flex items-center justify-center text-[10px]">
                                     <i class="fa-solid fa-seedling"></i>
                                 </span>
                                 <span class="text-[11px] font-extrabold text-emerald-300 tracking-wide">APY</span>
                             </div>
-                            <span id="targetCardApy" class="font-mono font-black text-white text-base bg-emerald-500/20 px-2 py-0.5 rounded-md border border-emerald-400/30">0</span>
+                            <div class="flex items-center gap-1.5 font-mono">
+                                <span id="targetCardApy" class="font-black text-white text-sm bg-emerald-500/20 px-2 py-0.5 rounded-md border border-emerald-400/30" title="Assigned Target">0</span>
+                                <span class="text-slate-400 font-bold">/</span>
+                                <span id="commitCardApy" class="font-black text-emerald-300 text-sm bg-emerald-500/20 px-2 py-0.5 rounded-md border border-emerald-400/40" title="BC Commitment">-</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -333,7 +360,7 @@
                     </div>
 
                     <!-- Normal Morning Check-In Button -->
-                    <button id="btnCheckIn" onclick="handleCheckIn()" class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white rounded-xl font-bold shadow-md transition-all flex items-center justify-center gap-2 text-sm active:scale-[0.98]">
+                    <button id="btnCheckIn" onclick="openCheckInCommitmentModal()" class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white rounded-xl font-bold shadow-md transition-all flex items-center justify-center gap-2 text-sm active:scale-[0.98]">
                         <i class="fa-solid fa-fingerprint text-base"></i>
                         <span>Record Morning Check-In</span>
                     </button>
@@ -357,10 +384,10 @@
                     </div>
 
                     <!-- Normal Check-Out Button -->
-                    <button id="btnTriggerCheckOut" onclick="scrollToEodReport()" class="hidden w-full py-3.5 px-4 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl font-bold shadow-md transition-all flex items-center justify-center gap-2 text-sm active:scale-[0.98]">
+                    <button id="btnTriggerCheckOut" onclick="openEodCheckoutModal()" class="hidden w-full py-3.5 px-4 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl font-bold shadow-md transition-all flex items-center justify-center gap-2 text-sm active:scale-[0.98]">
                         <i class="fa-solid fa-file-signature text-base"></i>
                         <span>Fill EOD Report & Check-Out</span>
-                        <i class="fa-solid fa-arrow-down text-xs"></i>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
                     </button>
 
                     <!-- Time-Up: Request for Check-Out Container -->
@@ -385,155 +412,26 @@
                         <span><i class="fa-solid fa-flag-checkered text-blue-600 mr-1"></i>Checkout Completed</span>
                         <strong id="checkOutTimeRecorded" class="font-mono">--:-- --</strong>
                     </div>
+
+                    <div id="checkOutNoticeBox" class="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-[11px] text-amber-800 flex items-center gap-1.5">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
+                        <span>Check-In is required prior to filing the EOD report.</span>
+                    </div>
                 </div>
 
-                <!-- EOD Scheme Enrollment Report Form -->
-                <div id="sectionEodReportCard" class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm transition-all duration-300">
-                    <div class="pb-3 border-b border-slate-100 flex items-center justify-between">
-                        <div>
-                            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                                <i class="fa-solid fa-file-invoice text-amber-600"></i>
-                                <span>Daily Scheme Report (EOD)</span>
-                            </h3>
-                            <p class="text-[11px] text-slate-500">Submitting completes your daily check-out</p>
-                        </div>
-                        <span class="text-[10px] bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-mono">EOD</span>
-                    </div>
-
-                    <form id="formEodReport" onsubmit="handleEodAndCheckout(event)" class="mt-4 space-y-3">
-                        <div class="grid grid-cols-12 gap-2 pb-1 text-[11px] font-bold text-slate-500 uppercase tracking-wider text-center">
-                            <div class="col-span-5 text-left">Scheme</div>
-                            <div class="col-span-4">Enroll</div>
-                            <div class="col-span-3">Auth</div>
-                        </div>
-
-                        <div class="grid grid-cols-12 gap-2 items-center py-1.5 border-b border-slate-100">
-                            <div class="col-span-5 text-xs font-bold text-slate-800 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-600"></span> PMJDY</div>
-                            <div class="col-span-4"><input type="number" id="repPmjdyEnroll" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
-                            <div class="col-span-3"><input type="number" id="repPmjdyAuth" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
-                        </div>
-
-                        <div class="grid grid-cols-12 gap-2 items-center py-1.5 border-b border-slate-100">
-                            <div class="col-span-5 text-xs font-bold text-slate-800 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-600"></span> PMSBY</div>
-                            <div class="col-span-4"><input type="number" id="repPmsbyEnroll" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
-                            <div class="col-span-3"><input type="number" id="repPmsbyAuth" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
-                        </div>
-
-                        <div class="grid grid-cols-12 gap-2 items-center py-1.5 border-b border-slate-100">
-                            <div class="col-span-5 text-xs font-bold text-slate-800 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-purple-600"></span> PMJJBY</div>
-                            <div class="col-span-4"><input type="number" id="repPmjjbyEnroll" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
-                            <div class="col-span-3"><input type="number" id="repPmjjbyAuth" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
-                        </div>
-
-                        <div class="grid grid-cols-12 gap-2 items-center py-1.5 border-b border-slate-100">
-                            <div class="col-span-5 text-xs font-bold text-slate-800 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-600"></span> APY</div>
-                            <div class="col-span-4"><input type="number" id="repApyEnroll" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
-                            <div class="col-span-3"><input type="number" id="repApyAuth" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Remarks (Optional)</label>
-                            <input type="text" id="repRemarks" placeholder="Branch notes..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs">
-                        </div>
-
-                        <div id="checkOutNoticeBox" class="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-[11px] text-amber-800 flex items-center gap-1.5">
-                            <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
-                            <span>Check-In is required prior to filing the EOD report.</span>
-                        </div>
-
-                        <button type="submit" id="btnSubmitEodCheckout" disabled class="w-full py-3.5 px-4 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed text-white rounded-xl font-bold shadow-md transition-all flex items-center justify-center gap-2 text-xs sm:text-sm">
-                            <i class="fa-solid fa-cloud-arrow-up"></i>
-                            <span>Submit EOD Report & Complete Checkout</span>
+                <!-- BC's Recent Leave & Permission Requests Status Card -->
+                <div id="bcMyRequestsBox" class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-2.5">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <h4 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                            <i class="fa-solid fa-clock-rotate-left text-amber-600"></i>
+                            <span>My Recent Leave & Permission Requests</span>
+                        </h4>
+                        <button onclick="openLeaveRequestModal()" class="px-2.5 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 text-[10px] font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> New Leave
                         </button>
-                    </form>
-                </div>
-
-                <!-- ========================================== -->
-                <!-- NEW: LEAVE REQUEST APPLICATION CARD        -->
-                <!-- ========================================== -->
-                <div id="sectionLeaveRequestCard" class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm space-y-4">
-                    <div class="pb-3 border-b border-slate-100 flex items-center justify-between">
-                        <div>
-                            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                                <i class="fa-solid fa-calendar-plus text-amber-600"></i>
-                                <span>Leave Request Application</span>
-                            </h3>
-                            <p class="text-[11px] text-slate-500">Apply for leave with reason & dates (Sends directly to Admin)</p>
-                        </div>
-                        <span class="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded font-bold">LEAVE</span>
                     </div>
-
-                    <form id="formLeaveRequest" onsubmit="handleSubmitLeaveRequest(event)" class="space-y-3.5 text-xs">
-                        <!-- Date Range & Total Days (Two-Way Synced) -->
-                        <div class="grid grid-cols-12 gap-2">
-                            <div class="col-span-5">
-                                <label class="block font-semibold text-slate-700 mb-1">From Date <span class="text-red-500">*</span></label>
-                                <input type="date" id="leaveFromDate" required onchange="syncFromDatesToDays()" class="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800">
-                            </div>
-                            <div class="col-span-5">
-                                <label class="block font-semibold text-slate-700 mb-1">To Date <span class="text-red-500">*</span></label>
-                                <input type="date" id="leaveToDate" required onchange="syncFromDatesToDays()" class="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800">
-                            </div>
-                            <div class="col-span-2">
-                                <label class="block font-semibold text-slate-700 mb-1 text-center">Days</label>
-                                <input type="number" id="leaveTotalDays" min="1" max="60" value="1" required oninput="syncFromDaysToToDate()" onchange="syncFromDaysToToDate()" class="w-full px-1 py-2 bg-amber-50 border border-amber-400 rounded-xl text-xs font-black text-amber-950 text-center font-mono focus:ring-2 focus:ring-amber-500">
-                            </div>
-                        </div>
-
-                        <!-- Leave Reason Type Selection with Tickmark -->
-                        <div>
-                            <label class="block font-semibold text-slate-700 mb-1.5">Select Leave Reason Type <span class="text-red-500">*</span></label>
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                <label class="cursor-pointer relative">
-                                    <input type="radio" name="leaveCategory" value="Medical Emergency" checked class="peer sr-only">
-                                    <div class="p-2.5 rounded-xl border border-slate-300 bg-slate-50 peer-checked:bg-rose-50 peer-checked:border-rose-500 peer-checked:text-rose-900 transition-all flex items-center justify-between">
-                                        <span class="font-bold text-[11px] flex items-center gap-1.5">
-                                            <i class="fa-solid fa-kit-medical text-rose-600"></i> Medical Emergency
-                                        </span>
-                                        <i class="fa-solid fa-circle-check text-rose-600 opacity-0 peer-checked:opacity-100 text-sm"></i>
-                                    </div>
-                                </label>
-
-                                <label class="cursor-pointer relative">
-                                    <input type="radio" name="leaveCategory" value="Casual Leave" class="peer sr-only">
-                                    <div class="p-2.5 rounded-xl border border-slate-300 bg-slate-50 peer-checked:bg-amber-50 peer-checked:border-amber-500 peer-checked:text-amber-900 transition-all flex items-center justify-between">
-                                        <span class="font-bold text-[11px] flex items-center gap-1.5">
-                                            <i class="fa-solid fa-umbrella-beach text-amber-600"></i> Casual
-                                        </span>
-                                        <i class="fa-solid fa-circle-check text-amber-600 opacity-0 peer-checked:opacity-100 text-sm"></i>
-                                    </div>
-                                </label>
-
-                                <label class="cursor-pointer relative">
-                                    <input type="radio" name="leaveCategory" value="Personal Work" class="peer sr-only">
-                                    <div class="p-2.5 rounded-xl border border-slate-300 bg-slate-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-900 transition-all flex items-center justify-between">
-                                        <span class="font-bold text-[11px] flex items-center gap-1.5">
-                                            <i class="fa-solid fa-briefcase text-blue-600"></i> Personal Work
-                                        </span>
-                                        <i class="fa-solid fa-circle-check text-blue-600 opacity-0 peer-checked:opacity-100 text-sm"></i>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Detailed Reason Box -->
-                        <div>
-                            <label class="block font-semibold text-slate-700 mb-1">Reason Details (কী কারণে ছুটি নিচ্ছেন বিস্তারিত লিখুন) <span class="text-red-500">*</span></label>
-                            <textarea id="leaveReasonText" rows="2" required placeholder="Write specific reason for your leave..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-amber-500 text-xs"></textarea>
-                        </div>
-
-                        <button type="submit" id="btnSubmitLeave" class="w-full py-3 px-4 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 text-xs sm:text-sm active:scale-[0.98]">
-                            <i class="fa-solid fa-paper-plane"></i>
-                            <span>Submit Leave Request to Admin</span>
-                        </button>
-                    </form>
-
-                    <!-- BC's Recent Requests Status History -->
-                    <div id="bcMyRequestsBox" class="pt-3 border-t border-slate-100 space-y-2">
-                        <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-500">My Recent Requests Status</h4>
-                        <div id="bcMyRequestsList" class="space-y-2 text-xs">
-                            <p class="text-[11px] text-slate-400 italic">No requests submitted yet.</p>
-                        </div>
+                    <div id="bcMyRequestsList" class="space-y-2 text-xs">
+                        <p class="text-[11px] text-slate-400 italic">No requests submitted yet.</p>
                     </div>
                 </div>
 
@@ -637,16 +535,20 @@
                 </div>
             </div>
 
-            <!-- Horizontal Navigation Tabs (Added Requests Tab with Live Counter Badge) -->
+            <!-- Horizontal Navigation Tabs -->
             <div class="flex space-x-2 overflow-x-auto pb-1 custom-scrollbar">
                 <button onclick="switchAdminTab('tabRequests')" id="navTabRequests" class="whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 flex items-center gap-1.5">
                     <i class="fa-solid fa-inbox"></i>
                     <span>Requests</span>
                     <span id="badgePendingRequests" class="px-1.5 py-0.5 text-[10px] font-black rounded-full bg-rose-600 text-white hidden">0</span>
                 </button>
+                <button onclick="switchAdminTab('tabBcCommitments')" id="navTabCommitments" class="whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 flex items-center gap-1.5">
+                    <i class="fa-solid fa-handshake-angle text-amber-600"></i>
+                    <span>BC Commitment</span>
+                </button>
                 <button onclick="switchAdminTab('tabWhatsappAlerts')" id="navTabWhatsapp" class="whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 flex items-center gap-1.5">
                     <i class="fa-brands fa-whatsapp text-emerald-600 text-sm"></i>
-                    <span>WhatsApp Alerts</span>
+                    <span>WhatsApp Group Alerts</span>
                 </button>
                 <button onclick="switchAdminTab('tabAddMember')" id="navTabAddMember" class="whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 shadow-sm">
                     <i class="fa-solid fa-user-plus mr-1"></i> Create BC ID
@@ -665,50 +567,219 @@
                 </button>
             </div>
 
-            <!-- ========================================== -->
-            <!-- ADMIN TAB: MANUAL WHATSAPP REMINDERS DESK  -->
-            <!-- ========================================== -->
-            <div id="tabWhatsappAlerts" class="hidden bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <div class="pb-3 border-b border-slate-100">
-                    <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <i class="fa-brands fa-whatsapp text-emerald-600 text-base"></i>
-                        <span>Manual One-by-One WhatsApp Reminder Desk</span>
-                    </h3>
-                    <p class="text-[11px] text-slate-500">Live status for today (<span id="waDeskTodayLabel" class="font-mono font-bold text-slate-700">--</span>). Send individual WhatsApp reminders to pending BCs.</p>
+            <!-- ========================================================== -->
+            <!-- NEW ADMIN TAB: BC DAILY COMMITMENT REPORT (PDF & EXCEL)    -->
+            <!-- ========================================================== -->
+            <div id="tabBcCommitments" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-3.5 sm:p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <div>
+                        <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5 uppercase">
+                            <i class="fa-solid fa-handshake-angle text-amber-600"></i>
+                            <span>Daily BC Scheme Commitments</span>
+                        </h3>
+                        <p class="text-[10px] sm:text-[11px] text-slate-500">Morning commitments submitted by BCs during Check-In (PMJDY, PMJJBY, PMSBY, APY).</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <input type="date" id="filterCommitmentDate" onchange="renderAdminCommitmentTable()" class="text-xs px-2.5 py-1.5 bg-amber-50 border border-amber-300 font-semibold text-slate-800 rounded-xl">
+                        <button onclick="resetCommitmentDateToToday()" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-400 text-[11px] font-bold rounded-xl">Today</button>
+                        <input type="text" id="searchCommitmentInput" onkeyup="renderAdminCommitmentTable()" placeholder="Search BC Code/Name..." class="text-xs px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl">
+                        <button onclick="exportCommitmentsExcel()" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1 shadow-xs" title="Download Daily Commitment Excel (CSV)">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Excel</span>
+                        </button>
+                        <button onclick="exportCommitmentsPdf()" class="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1 shadow-xs" title="Download Daily Commitment PDF">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            <span>PDF</span>
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Live Pending BCs List for Manual WhatsApp Reminders -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Morning Check-In Pending -->
-                    <div class="border border-rose-200 bg-rose-50/30 rounded-2xl p-3.5 space-y-2.5">
+                <!-- Commitment Totals Bar -->
+                <div class="px-3.5 py-2.5 bg-amber-50/60 border-b border-slate-200 grid grid-cols-2 sm:grid-cols-6 gap-2 text-[11px]">
+                    <div class="bg-white px-2.5 py-1.5 rounded-xl border border-slate-200 flex items-center justify-between">
+                        <span class="text-slate-500 font-semibold">Committed BCs:</span>
+                        <strong id="commSummaryCount" class="font-mono text-slate-900 text-xs">0</strong>
+                    </div>
+                    <div class="bg-white px-2.5 py-1.5 rounded-xl border border-blue-200 flex items-center justify-between">
+                        <span class="text-blue-700 font-bold">PMJDY:</span>
+                        <strong id="commSummaryPmjdy" class="font-mono text-blue-800 text-xs">0</strong>
+                    </div>
+                    <div class="bg-white px-2.5 py-1.5 rounded-xl border border-purple-200 flex items-center justify-between">
+                        <span class="text-purple-700 font-bold">PMJJBY:</span>
+                        <strong id="commSummaryPmjjby" class="font-mono text-purple-800 text-xs">0</strong>
+                    </div>
+                    <div class="bg-white px-2.5 py-1.5 rounded-xl border border-amber-200 flex items-center justify-between">
+                        <span class="text-amber-700 font-bold">PMSBY:</span>
+                        <strong id="commSummaryPmsby" class="font-mono text-amber-800 text-xs">0</strong>
+                    </div>
+                    <div class="bg-white px-2.5 py-1.5 rounded-xl border border-emerald-200 flex items-center justify-between">
+                        <span class="text-emerald-700 font-bold">APY:</span>
+                        <strong id="commSummaryApy" class="font-mono text-emerald-800 text-xs">0</strong>
+                    </div>
+                    <div class="bg-slate-900 text-white px-2.5 py-1.5 rounded-xl flex items-center justify-between">
+                        <span class="text-amber-400 font-bold">Grand Total:</span>
+                        <strong id="commSummaryGrandTotal" class="font-mono text-white text-xs">0</strong>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 text-slate-600 uppercase font-bold border-b border-slate-200 text-[11px]">
+                            <tr>
+                                <th class="p-2.5">SL</th>
+                                <th class="p-2.5">Date</th>
+                                <th class="p-2.5">BC Code</th>
+                                <th class="p-2.5">BC Name</th>
+                                <th class="p-2.5">Branch & Mobile</th>
+                                <th class="p-2.5">Check-In</th>
+                                <th class="p-2.5 text-center bg-blue-50/50">PMJDY</th>
+                                <th class="p-2.5 text-center bg-purple-50/50">PMJJBY</th>
+                                <th class="p-2.5 text-center bg-amber-50/50">PMSBY</th>
+                                <th class="p-2.5 text-center bg-emerald-50/50">APY</th>
+                                <th class="p-2.5 text-center bg-slate-100">Total Commit</th>
+                            </tr>
+                        </thead>
+                        <tbody id="commitmentTableBody" class="divide-y divide-slate-100 text-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ========================================================== -->
+            <!-- ADMIN TAB: WHATSAPP GROUP REMINDER DESK (LINK INTEGRATED)  -->
+            <!-- ========================================================== -->
+            <div id="tabWhatsappAlerts" class="hidden bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                <div class="pb-3 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-emerald-600 text-base"></i>
+                            <span>Territory WhatsApp Group Reminder Desk</span>
+                        </h3>
+                        <p class="text-[11px] text-slate-500">Live status for today (<span id="waDeskTodayLabel" class="font-mono font-bold text-slate-700">--</span>). Send Name, BC Code, Mobile & Total Count directly to your linked WhatsApp Group.</p>
+                    </div>
+                    <a id="btnOpenConfiguredGroupTop" href="https://chat.whatsapp.com/HbAxFGqzMcY3qoiEWiHCIL?s=cl&p=a&iam=2" target="_blank" class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm flex items-center justify-center gap-1.5 shrink-0">
+                        <i class="fa-solid fa-users"></i>
+                        <span>Open Linked WhatsApp Group</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </a>
+                </div>
+
+                <!-- Linked WhatsApp Group Configuration Card -->
+                <div class="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-3.5 sm:p-4 space-y-2.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="text-xs font-extrabold text-emerald-950 flex items-center gap-1.5">
+                            <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs shadow-sm">
+                                <i class="fa-solid fa-link"></i>
+                            </span>
+                            <span>Active Territory WhatsApp Group Link</span>
+                        </span>
+                        <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-200/80 text-emerald-900 border border-emerald-300">
+                            <i class="fa-solid fa-circle-check text-emerald-700 mr-1"></i>Group Linked & Cloud Synced
+                        </span>
+                    </div>
+
+                    <form onsubmit="handleSaveWhatsappGroupLink(event)" class="flex flex-col sm:flex-row gap-2">
+                        <input type="url" id="inputWhatsappGroupUrl" required
+                            value="https://chat.whatsapp.com/HbAxFGqzMcY3qoiEWiHCIL?s=cl&p=a&iam=2"
+                            placeholder="https://chat.whatsapp.com/..."
+                            class="flex-1 px-3 py-2 bg-white border border-emerald-300 rounded-xl text-xs font-mono text-slate-800 focus:ring-2 focus:ring-emerald-500">
+                        <div class="flex gap-2">
+                            <button type="submit" class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-amber-400 rounded-xl text-xs font-bold shadow-sm flex items-center gap-1.5 shrink-0">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>Save Link</span>
+                            </button>
+                            <a id="btnOpenConfiguredGroupInline" href="https://chat.whatsapp.com/HbAxFGqzMcY3qoiEWiHCIL?s=cl&p=a&iam=2" target="_blank" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm flex items-center gap-1.5 shrink-0">
+                                <i class="fa-brands fa-whatsapp text-sm"></i>
+                                <span>Go to Group</span>
+                            </a>
+                        </div>
+                    </form>
+                    <p class="text-[10px] text-emerald-800 leading-relaxed">
+                        <i class="fa-solid fa-circle-info mr-1"></i>
+                        <strong>How it works:</strong> Clicking <strong>"Share Urgent Notice to Group"</strong> formats a clean serial-wise (1, 2, 3...) urgent Bengali/English notice with each BC's <strong>BC Name, Branch, Location & @MobileNumber mention</strong>—ready to drop straight into your linked WhatsApp Group.
+                    </p>
+                </div>
+
+                <!-- Live Pending BCs Lists & Live Message Preview for Group Reminders -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    
+                    <!-- Morning Check-In Pending (Urgent Group Notice Mode) -->
+                    <div class="border border-rose-200 bg-rose-50/30 rounded-2xl p-3.5 space-y-3">
                         <div class="flex items-center justify-between">
                             <h4 class="text-xs font-extrabold text-rose-900 flex items-center gap-1.5">
                                 <i class="fa-solid fa-sun text-amber-500"></i> Not Checked-In Yet (Today)
                             </h4>
-                            <span id="countPendingCheckInWa" class="px-2 py-0.5 rounded-full bg-rose-600 text-white text-[10px] font-bold">0</span>
+                            <span id="countPendingCheckInWa" class="px-2.5 py-0.5 rounded-full bg-rose-600 text-white text-[10px] font-bold font-mono">0 Pending</span>
                         </div>
-                        <div id="listPendingCheckInWa" class="space-y-2 max-h-72 overflow-y-auto custom-scrollbar text-xs">
-                            <p class="text-[11px] text-slate-400 italic">All BCs checked in!</p>
+
+                        <!-- Live Formatted Message Preview Box -->
+                        <div class="bg-slate-900 text-slate-100 rounded-xl p-3 border border-slate-700 space-y-1.5">
+                            <div class="flex items-center justify-between text-[10px] text-amber-400 font-bold uppercase tracking-wider">
+                                <span><i class="fa-solid fa-eye mr-1"></i>Live Group Notice Preview (Check-In)</span>
+                                <span class="text-emerald-400 font-mono">@Mention Ready</span>
+                            </div>
+                            <pre id="previewCheckInNoticeText" class="text-[11px] font-sans whitespace-pre-wrap leading-relaxed text-slate-200 bg-slate-950/70 p-2.5 rounded-lg border border-slate-800 max-h-44 overflow-y-auto custom-scrollbar">Loading preview...</pre>
+                        </div>
+
+                        <!-- One-Click Full Group Broadcast Bar for Check-In -->
+                        <div class="p-2.5 bg-white rounded-xl border border-rose-200/80 flex flex-wrap items-center justify-between gap-2 shadow-xs">
+                            <button type="button" onclick="copyFullGroupReminder('CHECK_IN')" class="flex-1 py-2 px-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-[11px] flex items-center justify-center gap-1.5 border border-slate-300">
+                                <i class="fa-regular fa-copy"></i> Copy Notice Text
+                            </button>
+                            <a id="btnShareFullCheckInGroup" href="#" target="_blank" class="flex-1 py-2 px-3 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-[11px] flex items-center justify-center gap-1.5 shadow-sm">
+                                <i class="fa-brands fa-whatsapp text-sm"></i> Share Urgent Notice to Group
+                            </a>
+                        </div>
+
+                        <!-- Individual BC Cards (Send 1-by-1 to Group) -->
+                        <div class="pt-1">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Or Send 1-by-1 Serial Reminder to Group:</p>
+                            <div id="listPendingCheckInWa" class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar text-xs">
+                                <p class="text-[11px] text-slate-400 italic">All BCs checked in!</p>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Evening Check-Out Pending -->
-                    <div class="border border-amber-200 bg-amber-50/30 rounded-2xl p-3.5 space-y-2.5">
+                    <!-- Evening Check-Out Pending (Urgent Group Notice Mode) -->
+                    <div class="border border-amber-200 bg-amber-50/30 rounded-2xl p-3.5 space-y-3">
                         <div class="flex items-center justify-between">
                             <h4 class="text-xs font-extrabold text-amber-900 flex items-center gap-1.5">
                                 <i class="fa-solid fa-moon text-indigo-600"></i> Checked-In, Check-Out Pending
                             </h4>
-                            <span id="countPendingCheckOutWa" class="px-2 py-0.5 rounded-full bg-amber-600 text-white text-[10px] font-bold">0</span>
+                            <span id="countPendingCheckOutWa" class="px-2.5 py-0.5 rounded-full bg-amber-600 text-white text-[10px] font-bold font-mono">0 Pending</span>
                         </div>
-                        <div id="listPendingCheckOutWa" class="space-y-2 max-h-72 overflow-y-auto custom-scrollbar text-xs">
-                            <p class="text-[11px] text-slate-400 italic">No pending check-outs right now.</p>
+
+                        <!-- Live Formatted Message Preview Box -->
+                        <div class="bg-slate-900 text-slate-100 rounded-xl p-3 border border-slate-700 space-y-1.5">
+                            <div class="flex items-center justify-between text-[10px] text-amber-400 font-bold uppercase tracking-wider">
+                                <span><i class="fa-solid fa-eye mr-1"></i>Live Group Notice Preview (Check-Out)</span>
+                                <span class="text-emerald-400 font-mono">@Mention Ready</span>
+                            </div>
+                            <pre id="previewCheckOutNoticeText" class="text-[11px] font-sans whitespace-pre-wrap leading-relaxed text-slate-200 bg-slate-950/70 p-2.5 rounded-lg border border-slate-800 max-h-44 overflow-y-auto custom-scrollbar">Loading preview...</pre>
+                        </div>
+
+                        <!-- One-Click Full Group Broadcast Bar for Check-Out -->
+                        <div class="p-2.5 bg-white rounded-xl border border-amber-200/80 flex flex-wrap items-center justify-between gap-2 shadow-xs">
+                            <button type="button" onclick="copyFullGroupReminder('CHECK_OUT')" class="flex-1 py-2 px-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-[11px] flex items-center justify-center gap-1.5 border border-slate-300">
+                                <i class="fa-regular fa-copy"></i> Copy Notice Text
+                            </button>
+                            <a id="btnShareFullCheckOutGroup" href="#" target="_blank" class="flex-1 py-2 px-3 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-[11px] flex items-center justify-center gap-1.5 shadow-sm">
+                                <i class="fa-brands fa-whatsapp text-sm"></i> Share Urgent Notice to Group
+                            </a>
+                        </div>
+
+                        <!-- Individual BC Cards (Send 1-by-1 to Group) -->
+                        <div class="pt-1">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">Or Send 1-by-1 Serial Reminder to Group:</p>
+                            <div id="listPendingCheckOutWa" class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar text-xs">
+                                <p class="text-[11px] text-slate-400 italic">No pending check-outs right now.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- ========================================== -->
-            <!-- NEW ADMIN TAB: REQUESTS INBOX              -->
+            <!-- ADMIN TAB: REQUESTS INBOX                  -->
             <!-- ========================================== -->
             <div id="tabRequests" class="hidden bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
@@ -841,15 +912,27 @@
                 <div class="p-3.5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
                         <h3 class="text-xs font-bold text-slate-900 uppercase">Master Attendance & Performance MIS</h3>
-                        <p class="text-[10px] text-slate-500">Auto-filtered to today's live date. Pick any back-date to view past logs.</p>
+                        <p class="text-[10px] text-slate-500">Auto-filtered to today's live date. Download daily Check-In/Out MIS in Excel or PDF.</p>
                     </div>
                     <div class="flex flex-wrap items-center gap-1.5">
                         <input type="date" id="filterAttendanceDate" onchange="filterAttendanceTable()" class="text-xs px-2.5 py-1.5 bg-amber-50 border border-amber-300 font-semibold text-slate-800 rounded-xl">
                         <button onclick="resetAttendanceDateToToday()" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-400 text-[11px] font-bold rounded-xl">Today</button>
                         <input type="text" id="searchAttendance" onkeyup="filterAttendanceTable()" placeholder="Search BC Code/Name..." class="text-xs px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl">
-                        <button onclick="copyDailyWhatsappSummary()" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1" title="Copy Summary for WhatsApp">
+                        <button onclick="exportDailyAttendanceExcel()" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1" title="Download Daily MIS Excel (CSV)">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Excel</span>
+                        </button>
+                        <button onclick="exportDailyAttendancePdf()" class="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold rounded-xl flex items-center gap-1" title="Download Daily MIS PDF">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            <span>PDF</span>
+                        </button>
+                        <button onclick="copyDailyWhatsappSummary()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 text-[11px] font-bold rounded-xl flex items-center gap-1" title="Copy Summary for WhatsApp">
                             <i class="fa-brands fa-whatsapp"></i>
                             <span class="hidden sm:inline">Copy MIS</span>
+                        </button>
+                        <button onclick="deleteAllAttendanceForSelectedDate()" class="px-2.5 py-1.5 bg-rose-100 hover:bg-rose-600 text-rose-700 hover:text-white border border-rose-300 text-[11px] font-bold rounded-xl flex items-center gap-1 transition-all" title="Delete All MIS Records for Selected Date">
+                            <i class="fa-solid fa-trash-can"></i>
+                            <span class="hidden sm:inline">Clear Date MIS</span>
                         </button>
                     </div>
                 </div>
@@ -889,6 +972,7 @@
                                 <th class="p-2.5 text-center bg-emerald-50/50">APY (E/A)</th>
                                 <th class="p-2.5 text-center bg-slate-100">Total (E/A)</th>
                                 <th class="p-2.5">Remarks</th>
+                                <th class="p-2.5 text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody id="attendanceTableBody" class="divide-y divide-slate-100 text-slate-700"></tbody>
@@ -901,9 +985,9 @@
                 <div class="p-3.5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
                         <h3 class="text-xs font-bold text-slate-900 uppercase">Cloud BC Member Directory & Credentials</h3>
-                        <p class="text-[10px] text-slate-400">Manage BC logins, passwords, direct WhatsApp chat, and time bypass controls.</p>
+                        <p class="text-[10px] text-slate-400">Manage BC logins, Branch, Location, Mobile, Passwords, and time bypass controls.</p>
                     </div>
-                    <input type="text" id="searchDirectoryInput" onkeyup="renderAdminDirectory()" placeholder="Filter by Name, Code, Branch..." class="text-xs px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl w-full sm:w-60">
+                    <input type="text" id="searchDirectoryInput" onkeyup="renderAdminDirectory()" placeholder="Filter by Name, Code, Branch, Location..." class="text-xs px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl w-full sm:w-64">
                 </div>
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="w-full text-left text-xs">
@@ -912,6 +996,7 @@
                                 <th class="p-2.5">BC Code</th>
                                 <th class="p-2.5">Full Name</th>
                                 <th class="p-2.5">Branch</th>
+                                <th class="p-2.5">Location</th>
                                 <th class="p-2.5">Mobile / Chat</th>
                                 <th class="p-2.5 font-mono">Password</th>
                                 <th class="p-2.5 text-center">Bypass Time</th>
@@ -955,6 +1040,267 @@
                 <div class="pt-1 flex gap-2">
                     <button type="button" onclick="closeAdminLoginModal()" class="w-1/2 py-2.5 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold">Cancel</button>
                     <button type="submit" class="w-1/2 py-2.5 bg-slate-900 text-white font-bold rounded-xl text-xs shadow-md">Authenticate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- BC MORNING CHECK-IN COMMITMENT MODAL (MANDATORY MIN 1)     -->
+    <!-- ========================================================== -->
+    <div id="modalCheckInCommitment" class="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200 animate-[fadeIn_0.2s_ease-out]">
+            <div class="p-4 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white flex items-center justify-between border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black text-sm shadow-sm">
+                        <i class="fa-solid fa-bullseye"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs sm:text-sm font-extrabold text-white">Today's Target & BC Commitment</h3>
+                        <p class="text-[10px] text-amber-300">Enter minimum 1 commitment in each segment to Check-In</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeCheckInCommitmentModal()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <form onsubmit="submitCheckInWithCommitment(event)" class="p-4 sm:p-5 space-y-3.5 text-xs">
+                <!-- Table Header -->
+                <div class="grid grid-cols-12 gap-2 pb-1.5 border-b border-slate-200 text-[10px] font-extrabold uppercase tracking-wider text-slate-500 text-center">
+                    <div class="col-span-4 text-left">Segment</div>
+                    <div class="col-span-4">Assign Target</div>
+                    <div class="col-span-4 text-emerald-700">BC Commitment *</div>
+                </div>
+
+                <!-- 1. PMJDY -->
+                <div class="grid grid-cols-12 gap-2 items-center bg-blue-50/60 p-2.5 rounded-xl border border-blue-200/80">
+                    <div class="col-span-4 font-extrabold text-blue-950 flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> PMJDY
+                    </div>
+                    <div class="col-span-4">
+                        <input type="text" id="modalAssignPmjdy" readonly value="0" class="w-full text-center py-2 bg-white border border-blue-200 rounded-lg font-mono font-black text-blue-900 text-sm cursor-not-allowed">
+                    </div>
+                    <div class="col-span-4">
+                        <input type="number" id="modalCommitPmjdy" min="1" required placeholder="Min 1" oninput="updateModalCommitmentTotal()" class="w-full text-center py-2 bg-white border-2 border-emerald-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/30 rounded-lg font-mono font-black text-slate-900 text-sm">
+                    </div>
+                </div>
+
+                <!-- 2. PMJJBY -->
+                <div class="grid grid-cols-12 gap-2 items-center bg-purple-50/60 p-2.5 rounded-xl border border-purple-200/80">
+                    <div class="col-span-4 font-extrabold text-purple-950 flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span> PMJJBY
+                    </div>
+                    <div class="col-span-4">
+                        <input type="text" id="modalAssignPmjjby" readonly value="0" class="w-full text-center py-2 bg-white border border-purple-200 rounded-lg font-mono font-black text-purple-900 text-sm cursor-not-allowed">
+                    </div>
+                    <div class="col-span-4">
+                        <input type="number" id="modalCommitPmjjby" min="1" required placeholder="Min 1" oninput="updateModalCommitmentTotal()" class="w-full text-center py-2 bg-white border-2 border-emerald-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/30 rounded-lg font-mono font-black text-slate-900 text-sm">
+                    </div>
+                </div>
+
+                <!-- 3. PMSBY -->
+                <div class="grid grid-cols-12 gap-2 items-center bg-amber-50/60 p-2.5 rounded-xl border border-amber-200/80">
+                    <div class="col-span-4 font-extrabold text-amber-950 flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-600"></span> PMSBY
+                    </div>
+                    <div class="col-span-4">
+                        <input type="text" id="modalAssignPmsby" readonly value="0" class="w-full text-center py-2 bg-white border border-amber-200 rounded-lg font-mono font-black text-amber-900 text-sm cursor-not-allowed">
+                    </div>
+                    <div class="col-span-4">
+                        <input type="number" id="modalCommitPmsby" min="1" required placeholder="Min 1" oninput="updateModalCommitmentTotal()" class="w-full text-center py-2 bg-white border-2 border-emerald-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/30 rounded-lg font-mono font-black text-slate-900 text-sm">
+                    </div>
+                </div>
+
+                <!-- 4. APY -->
+                <div class="grid grid-cols-12 gap-2 items-center bg-emerald-50/60 p-2.5 rounded-xl border border-emerald-200/80">
+                    <div class="col-span-4 font-extrabold text-emerald-950 flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> APY
+                    </div>
+                    <div class="col-span-4">
+                        <input type="text" id="modalAssignApy" readonly value="0" class="w-full text-center py-2 bg-white border border-emerald-200 rounded-lg font-mono font-black text-emerald-900 text-sm cursor-not-allowed">
+                    </div>
+                    <div class="col-span-4">
+                        <input type="number" id="modalCommitApy" min="1" required placeholder="Min 1" oninput="updateModalCommitmentTotal()" class="w-full text-center py-2 bg-white border-2 border-emerald-400 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/30 rounded-lg font-mono font-black text-slate-900 text-sm">
+                    </div>
+                </div>
+
+                <!-- Total Summary Row -->
+                <div class="p-2.5 bg-slate-900 text-white rounded-xl flex items-center justify-between text-xs">
+                    <span class="font-semibold text-slate-300">Total Assigned vs Your Commitment:</span>
+                    <span class="font-mono font-black">
+                        <span id="modalAssignTotal" class="text-amber-400">0</span>
+                        <span class="text-slate-500 mx-1">/</span>
+                        <span id="modalCommitTotal" class="text-emerald-400">0</span>
+                    </span>
+                </div>
+
+                <!-- Validation Error Banner -->
+                <div id="commitmentValidationError" class="hidden p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-bold flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-exclamation text-sm shrink-0"></i>
+                    <span>জিরো (0) এন্ট্রি গ্রহণযোগ্য নয়! প্রতিটি সেগমেন্টে মিনিমাম ১ (1) এন্ট্রি করতে হবে।</span>
+                </div>
+
+                <div class="pt-1 flex gap-2">
+                    <button type="button" onclick="closeCheckInCommitmentModal()" class="w-1/3 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">Cancel</button>
+                    <button type="submit" id="btnConfirmCommitmentCheckIn" class="w-2/3 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-fingerprint"></i>
+                        <span>Confirm Commitment & Check-In</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- BC EOD REPORT & CHECK-OUT MODAL (OPENS ON CHECK-OUT CLICK) -->
+    <!-- ========================================================== -->
+    <div id="modalEodCheckout" class="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200">
+            <div class="p-4 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white flex items-center justify-between border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black text-sm shadow-sm">
+                        <i class="fa-solid fa-file-invoice"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs sm:text-sm font-extrabold text-white">Daily Scheme Report (EOD) & Check-Out</h3>
+                        <p class="text-[10px] text-amber-300">Submit today's scheme numbers to complete your Check-Out</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeEodCheckoutModal()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <form id="formEodReport" onsubmit="handleEodAndCheckout(event)" class="p-4 sm:p-5 space-y-3 text-xs">
+                <div class="grid grid-cols-12 gap-2 pb-1 text-[11px] font-bold text-slate-500 uppercase tracking-wider text-center">
+                    <div class="col-span-5 text-left">Scheme</div>
+                    <div class="col-span-4">Enroll</div>
+                    <div class="col-span-3">Auth</div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-2 items-center py-1.5 border-b border-slate-100">
+                    <div class="col-span-5 text-xs font-bold text-slate-800 flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> PMJDY</div>
+                    <div class="col-span-4"><input type="number" id="repPmjdyEnroll" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
+                    <div class="col-span-3"><input type="number" id="repPmjdyAuth" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-2 items-center py-1.5 border-b border-slate-100">
+                    <div class="col-span-5 text-xs font-bold text-slate-800 flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-600"></span> PMSBY</div>
+                    <div class="col-span-4"><input type="number" id="repPmsbyEnroll" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
+                    <div class="col-span-3"><input type="number" id="repPmsbyAuth" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-2 items-center py-1.5 border-b border-slate-100">
+                    <div class="col-span-5 text-xs font-bold text-slate-800 flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span> PMJJBY</div>
+                    <div class="col-span-4"><input type="number" id="repPmjjbyEnroll" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
+                    <div class="col-span-3"><input type="number" id="repPmjjbyAuth" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
+                </div>
+
+                <div class="grid grid-cols-12 gap-2 items-center py-1.5 border-b border-slate-100">
+                    <div class="col-span-5 text-xs font-bold text-slate-800 flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> APY</div>
+                    <div class="col-span-4"><input type="number" id="repApyEnroll" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
+                    <div class="col-span-3"><input type="number" id="repApyAuth" min="0" value="0" required class="w-full text-center py-2 px-1 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold"></div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Remarks (Optional)</label>
+                    <input type="text" id="repRemarks" placeholder="Branch notes..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs">
+                </div>
+
+                <div class="pt-1 flex gap-2">
+                    <button type="button" onclick="closeEodCheckoutModal()" class="w-1/3 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">Cancel</button>
+                    <button type="submit" id="btnSubmitEodCheckout" class="w-2/3 py-3 bg-slate-900 hover:bg-slate-800 text-amber-400 rounded-xl font-bold shadow-md transition-all flex items-center justify-center gap-1.5 text-xs sm:text-sm">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>Submit EOD & Check-Out</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- BC LEAVE APPLICATION MODAL (OPENS ON APPLY LEAVE CLICK)    -->
+    <!-- ========================================================== -->
+    <div id="modalLeaveRequest" class="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200">
+            <div class="p-4 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white flex items-center justify-between border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black text-sm shadow-sm">
+                        <i class="fa-solid fa-calendar-plus"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs sm:text-sm font-extrabold text-white">Leave Request Application</h3>
+                        <p class="text-[10px] text-amber-300">Apply for leave with reason & dates (Sends directly to Admin)</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeLeaveRequestModal()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <form id="formLeaveRequest" onsubmit="handleSubmitLeaveRequest(event)" class="p-4 sm:p-5 space-y-3.5 text-xs">
+                <div class="grid grid-cols-12 gap-2">
+                    <div class="col-span-5">
+                        <label class="block font-semibold text-slate-700 mb-1">From Date <span class="text-red-500">*</span></label>
+                        <input type="date" id="leaveFromDate" required onchange="syncFromDatesToDays()" class="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800">
+                    </div>
+                    <div class="col-span-5">
+                        <label class="block font-semibold text-slate-700 mb-1">To Date <span class="text-red-500">*</span></label>
+                        <input type="date" id="leaveToDate" required onchange="syncFromDatesToDays()" class="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block font-semibold text-slate-700 mb-1 text-center">Days</label>
+                        <input type="number" id="leaveTotalDays" min="1" max="60" value="1" required oninput="syncFromDaysToToDate()" onchange="syncFromDaysToToDate()" class="w-full px-1 py-2 bg-amber-50 border border-amber-400 rounded-xl text-xs font-black text-amber-950 text-center font-mono focus:ring-2 focus:ring-amber-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1.5">Select Leave Reason Type <span class="text-red-500">*</span></label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <label class="cursor-pointer relative">
+                            <input type="radio" name="leaveCategory" value="Medical Emergency" checked class="peer sr-only">
+                            <div class="p-2.5 rounded-xl border border-slate-300 bg-slate-50 peer-checked:bg-rose-50 peer-checked:border-rose-500 peer-checked:text-rose-900 transition-all flex items-center justify-between">
+                                <span class="font-bold text-[11px] flex items-center gap-1.5">
+                                    <i class="fa-solid fa-kit-medical text-rose-600"></i> Medical Emergency
+                                </span>
+                                <i class="fa-solid fa-circle-check text-rose-600 opacity-0 peer-checked:opacity-100 text-sm"></i>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer relative">
+                            <input type="radio" name="leaveCategory" value="Casual Leave" class="peer sr-only">
+                            <div class="p-2.5 rounded-xl border border-slate-300 bg-slate-50 peer-checked:bg-amber-50 peer-checked:border-amber-500 peer-checked:text-amber-900 transition-all flex items-center justify-between">
+                                <span class="font-bold text-[11px] flex items-center gap-1.5">
+                                    <i class="fa-solid fa-umbrella-beach text-amber-600"></i> Casual
+                                </span>
+                                <i class="fa-solid fa-circle-check text-amber-600 opacity-0 peer-checked:opacity-100 text-sm"></i>
+                            </div>
+                        </label>
+
+                        <label class="cursor-pointer relative">
+                            <input type="radio" name="leaveCategory" value="Personal Work" class="peer sr-only">
+                            <div class="p-2.5 rounded-xl border border-slate-300 bg-slate-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-900 transition-all flex items-center justify-between">
+                                <span class="font-bold text-[11px] flex items-center gap-1.5">
+                                    <i class="fa-solid fa-briefcase text-blue-600"></i> Personal Work
+                                </span>
+                                <i class="fa-solid fa-circle-check text-blue-600 opacity-0 peer-checked:opacity-100 text-sm"></i>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Reason Details (কী কারণে ছুটি নিচ্ছেন বিস্তারিত লিখুন) <span class="text-red-500">*</span></label>
+                    <textarea id="leaveReasonText" rows="3" required placeholder="Write specific reason for your leave..." class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-amber-500 text-xs"></textarea>
+                </div>
+
+                <div class="pt-1 flex gap-2">
+                    <button type="button" onclick="closeLeaveRequestModal()" class="w-1/3 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold">Cancel</button>
+                    <button type="submit" id="btnSubmitLeave" class="w-2/3 py-3 px-4 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 text-xs sm:text-sm active:scale-[0.98]">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Submit Leave Request</span>
+                    </button>
                 </div>
             </form>
         </div>
@@ -1048,16 +1394,102 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // Default Territory WhatsApp Group Link Provided by Admin
+        const DEFAULT_WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/HbAxFGqzMcY3qoiEWiHCIL?s=cl&p=a&iam=2";
+
         // Live Cloud State Caches
         let cloudMembers = [];
         let cloudAttendance = [];
         let cloudRequests = [];
         let cloudTargets = { pmjdy: 5, pmsby: 10, pmjjby: 5, apy: 3, note: "" };
         let cloudNotice = { message: "Welcome to Mitr Sewa Field Portal. Complete your morning check-in on time.", time: "Live" };
+        let cloudWhatsappGroupUrl = DEFAULT_WHATSAPP_GROUP_URL;
         
         let currentAuthAgent = null;
         let isAdminLoggedIn = false;
         let adminReqFilter = 'ALL';
+
+        // Format YYYY-MM-DD into DD-MM-YYYY for clean Bengali/English notices
+        function formatDisplayDateDDMMYYYY(dateStr) {
+            if (!dateStr) return '';
+            const parts = String(dateStr).split('-');
+            if (parts.length !== 3) return dateStr;
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+
+        // Build Individual BC Urgent Group Notice (BC Name, Branch, Location & @MobileNumber without 91 prefix)
+        window.buildIndividualGroupReminderPayload = (bc, alertType, serialNumber = 1) => {
+            const rawMobile = String(bc.mobile || '').replace(/\D/g, '');
+            const cleanMobile = rawMobile.length === 12 && rawMobile.startsWith('91') ? rawMobile.slice(2) : rawMobile;
+            const mentionTag = `@${cleanMobile}`;
+            const dmPhone = cleanMobile.length === 10 ? `91${cleanMobile}` : cleanMobile;
+            const displayDate = formatDisplayDateDDMMYYYY(getTodayDateString());
+            const locationName = bc.location || 'N/A';
+
+            let text = '';
+            if (alertType === 'CHECK_IN') {
+                text = `🚨 *জরুরি নোটিশ : আজকের CHECK-IN বাকি রয়েছে* 🚨\n📅 তারিখ: ${displayDate}\n\nনিম্নলিখিত BC-র আজকের মর্নিং চেক-ইন এখনো সম্পন্ন হয়নি:\n\n${serialNumber}. *${bc.name}* (${bc.code})\n   🏦 Branch: ${bc.branch}\n   📍 Location: ${locationName}\n   📲 ${mentionTag}\n\n⚠️ অনুগ্রহ করে অবিলম্বে Mitr Sewa পোর্টালে লগইন করে আপনার Check-In সম্পন্ন করুন।\n— *Mitr Sewa Territory Desk*`;
+            } else {
+                text = `🚨 *জরুরি নোটিশ : আজকের EOD ও CHECK-OUT বাকি রয়েছে* 🚨\n📅 তারিখ: ${displayDate}\n\nনিম্নলিখিত BC-র আজকের EOD রিপোর্ট এবং চেক-আউট এখনো সম্পন্ন হয়নি:\n\n${serialNumber}. *${bc.name}* (${bc.code})\n   🏦 Branch: ${bc.branch}\n   📍 Location: ${locationName}\n   📲 ${mentionTag}\n\n⚠️ অনুগ্রহ করে দ্রুত পোর্টালে EOD রিপোর্ট সাবমিট করে Check-Out সম্পন্ন করুন।\n— *Mitr Sewa Territory Desk*`;
+            }
+
+            return {
+                groupShareUrl: `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`,
+                dmUrl: `https://wa.me/${dmPhone}?text=${encodeURIComponent(text)}`,
+                text
+            };
+        };
+
+        // Build Serial-Wise Urgent Group Notice for ALL Pending BCs (1, 2, 3, 4... with BC Name, Branch, Location & @MobileNumber)
+        function buildFullGroupReminderText(alertType) {
+            const today = getTodayDateString();
+            const displayDate = formatDisplayDateDDMMYYYY(today);
+            const todayRecords = cloudAttendance.filter(r => r.date === today);
+
+            if (alertType === 'CHECK_IN') {
+                const pendingList = cloudMembers.filter(m => !todayRecords.some(r => r.bcCode === m.code));
+                if (pendingList.length === 0) {
+                    return `✅ *জরুরি আপডেট : আজকের CHECK-IN সম্পন্ন* ✅\n📅 তারিখ: ${displayDate}\n\nআজকের মর্নিং চেক-ইন সকল BC সম্পন্ন করেছেন।\n— *Mitr Sewa Territory Desk*`;
+                }
+                const serialBlocks = pendingList.map((bc, idx) => {
+                    const rawMobile = String(bc.mobile || '').replace(/\D/g, '');
+                    const cleanMobile = rawMobile.length === 12 && rawMobile.startsWith('91') ? rawMobile.slice(2) : rawMobile;
+                    const mentionTag = `@${cleanMobile}`;
+                    const locationName = bc.location || 'N/A';
+                    return `${idx + 1}. *${bc.name}* (${bc.code})\n   🏦 Branch: ${bc.branch}\n   📍 Location: ${locationName}\n   📲 ${mentionTag}`;
+                }).join('\n\n');
+
+                return `🚨 *জরুরি নোটিশ : আজকের CHECK-IN বাকি রয়েছে* 🚨\n📅 তারিখ: ${displayDate}\n\nনিম্নলিখিত BC-দের আজকের মর্নিং চেক-ইন এখনো সম্পন্ন হয়নি:\n\n${serialBlocks}\n\n⚠️ অনুগ্রহ করে অবিলম্বে Mitr Sewa পোর্টালে লগইন করে আপনার Check-In সম্পন্ন করুন।\n— *Mitr Sewa Territory Desk*`;
+            } else {
+                const pendingList = cloudMembers.filter(m => todayRecords.some(r => r.bcCode === m.code && !r.checkOutTime));
+                if (pendingList.length === 0) {
+                    return `✅ *জরুরি আপডেট : আজকের EOD ও CHECK-OUT সম্পন্ন* ✅\n📅 তারিখ: ${displayDate}\n\nআজকের সকল Checked-In BC-র চেক-আউট ও EOD রিপোর্ট সম্পন্ন হয়েছে।\n— *Mitr Sewa Territory Desk*`;
+                }
+                const serialBlocks = pendingList.map((bc, idx) => {
+                    const rawMobile = String(bc.mobile || '').replace(/\D/g, '');
+                    const cleanMobile = rawMobile.length === 12 && rawMobile.startsWith('91') ? rawMobile.slice(2) : rawMobile;
+                    const mentionTag = `@${cleanMobile}`;
+                    const locationName = bc.location || 'N/A';
+                    return `${idx + 1}. *${bc.name}* (${bc.code})\n   🏦 Branch: ${bc.branch}\n   📍 Location: ${locationName}\n   📲 ${mentionTag}`;
+                }).join('\n\n');
+
+                return `🚨 *জরুরি নোটিশ : আজকের EOD ও CHECK-OUT বাকি রয়েছে* 🚨\n📅 তারিখ: ${displayDate}\n\nনিম্নলিখিত BC-দের আজকের EOD রিপোর্ট এবং চেক-আউট এখনো সম্পন্ন হয়নি:\n\n${serialBlocks}\n\n⚠️ অনুগ্রহ করে দ্রুত পোর্টালে EOD রিপোর্ট সাবমিট করে Check-Out সম্পন্ন করুন।\n— *Mitr Sewa Territory Desk*`;
+            }
+        }
+
+        window.copyFullGroupReminder = (alertType) => {
+            const msg = buildFullGroupReminderText(alertType);
+            copyTextToClipboard(msg);
+            showToast(`Urgent ${alertType === 'CHECK_IN' ? 'Check-In' : 'Check-Out'} Group Notice copied!`, "success");
+        };
+
+        window.copySingleBcGroupReminder = (bcCode, alertType, serialNum = 1) => {
+            const bc = cloudMembers.find(m => m.code === bcCode);
+            if (!bc) return;
+            const payload = buildIndividualGroupReminderPayload(bc, alertType, serialNum);
+            copyTextToClipboard(payload.text);
+            showToast(`Copied #${serialNum} group reminder for ${bc.name}!`, "success");
+        };
 
         // Live Clock & Date Updater for BC Profile Card
         function updateLiveClockAndDate() {
@@ -1140,21 +1572,42 @@
             daysEl.value = diffDays > 0 ? diffDays : 1;
         };
 
-        // Build Manual WhatsApp URL & Polite Message for Check-In or Check-Out Reminder
-        window.buildWhatsappAlertPayload = (bc, alertType) => {
-            const cleanMobile = String(bc.mobile || '').replace(/\D/g, '');
-            const phoneWithCode = cleanMobile.length === 10 ? `91${cleanMobile}` : cleanMobile;
-            const today = getTodayDateString();
-            let text = '';
-            if (alertType === 'CHECK_IN') {
-                text = `🔔 *Mitr Sewa Check-In Reminder*\n\nDear *${bc.name}* (${bc.code}),\nBranch: ${bc.branch}\n\nআপনার আজকের (${today}) মর্নিং চেক-ইন এখনো সম্পন্ন হয়নি। অনুগ্রহ করে দ্রুত Mitr Sewa BC পোর্টালে লগইন করে Check-In সম্পন্ন করুন।\n\n- Mitr Sewa Territory Desk`;
-            } else {
-                text = `🔔 *Mitr Sewa Check-Out & EOD Reminder*\n\nDear *${bc.name}* (${bc.code}),\nBranch: ${bc.branch}\n\nআপনার আজকের (${today}) EOD রিপোর্ট এবং Check-Out এখনো বাকি আছে। অনুগ্রহ করে দ্রুত পোর্টালে আপনার কাজের রিপোর্ট সাবমিট করে Check-Out সম্পন্ন করুন।\n\n- Mitr Sewa Territory Desk`;
+        // Clipboard Copy Utility (Works inside iframes & mobile browsers)
+        function copyTextToClipboard(text) {
+            const tempArea = document.createElement('textarea');
+            tempArea.value = text;
+            document.body.appendChild(tempArea);
+            tempArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempArea);
+        }
+
+        // Sync UI buttons with the configured Territory WhatsApp Group Link
+        function syncWhatsappGroupLinkUI() {
+            const inputEl = document.getElementById('inputWhatsappGroupUrl');
+            const topBtn = document.getElementById('btnOpenConfiguredGroupTop');
+            const inlineBtn = document.getElementById('btnOpenConfiguredGroupInline');
+            if (inputEl) inputEl.value = cloudWhatsappGroupUrl;
+            if (topBtn) topBtn.href = cloudWhatsappGroupUrl;
+            if (inlineBtn) inlineBtn.href = cloudWhatsappGroupUrl;
+        }
+
+        // Save updated WhatsApp Group Link to Firestore
+        window.handleSaveWhatsappGroupLink = async (e) => {
+            e.preventDefault();
+            const newUrl = document.getElementById('inputWhatsappGroupUrl')?.value.trim();
+            if (!newUrl) return;
+            try {
+                await setDoc(doc(db, "portal_config", "whatsapp_group"), {
+                    groupUrl: newUrl,
+                    updatedAt: new Date().toLocaleString('en-IN')
+                });
+                cloudWhatsappGroupUrl = newUrl;
+                syncWhatsappGroupLinkUI();
+                showToast("WhatsApp Group Link saved to Cloud!", "success");
+            } catch (err) {
+                showToast("Failed to save group link: " + err.message, "error");
             }
-            return {
-                url: `https://wa.me/${phoneWithCode}?text=${encodeURIComponent(text)}`,
-                text
-            };
         };
 
         // Real-Time Firestore Listeners
@@ -1171,7 +1624,7 @@
 
         onSnapshot(collection(db, "attendance_mis"), (snapshot) => {
             cloudAttendance = [];
-            snapshot.forEach(d => cloudAttendance.push(d.data()));
+            snapshot.forEach(d => cloudAttendance.push({ _docId: d.id, ...d.data() }));
             if (isAdminLoggedIn) renderAdminDashboard();
             if (currentAuthAgent) renderAgentDashboard();
         });
@@ -1209,6 +1662,15 @@
             }
         });
 
+        onSnapshot(doc(db, "portal_config", "whatsapp_group"), (docSnap) => {
+            if (docSnap.exists() && docSnap.data().groupUrl) {
+                cloudWhatsappGroupUrl = docSnap.data().groupUrl;
+            } else {
+                cloudWhatsappGroupUrl = DEFAULT_WHATSAPP_GROUP_URL;
+            }
+            syncWhatsappGroupLinkUI();
+        });
+
         function getTodayDateString() {
             const today = new Date();
             return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -1233,7 +1695,7 @@
 
         window.handleAdminAuth = (e) => {
             e.preventDefault();
-            const user = document.getElementById('inputAdminUser').value.trim();
+            const user = document.getElementById('inputAdminUser').value.trim().toLowerCase();
             const pass = document.getElementById('inputAdminPass').value.trim();
             if (user === 'admin' && pass === 'admin123') {
                 isAdminLoggedIn = true;
@@ -1255,11 +1717,11 @@
             document.getElementById('containerBcSection').classList.add('hidden');
             document.getElementById('containerAdminSection').classList.remove('hidden');
             
-            // Auto-select TODAY's live date by default in Attendance MIS
             const dateInput = document.getElementById('filterAttendanceDate');
             if (dateInput && !dateInput.value) {
                 dateInput.value = getTodayDateString();
             }
+            syncWhatsappGroupLinkUI();
             renderAdminDashboard();
         };
 
@@ -1374,6 +1836,25 @@
             document.getElementById('targetTotalSum').innerText = (Number(cloudTargets.pmjdy)||0) + (Number(cloudTargets.pmsby)||0) + (Number(cloudTargets.pmjjby)||0) + (Number(cloudTargets.apy)||0);
             if (cloudTargets.note) document.getElementById('targetAdminNote').innerText = cloudTargets.note;
 
+            // Display Today's BC Commitment alongside Assigned Target on BC Portal
+            if (todayRecord && (todayRecord.commitPmjdy !== undefined || todayRecord.commitTotal !== undefined)) {
+                const cPmjdy = Number(todayRecord.commitPmjdy) || 0;
+                const cPmjjby = Number(todayRecord.commitPmjjby) || 0;
+                const cPmsby = Number(todayRecord.commitPmsby) || 0;
+                const cApy = Number(todayRecord.commitApy) || 0;
+                document.getElementById('commitCardPmjdy').innerText = cPmjdy;
+                document.getElementById('commitCardPmjjby').innerText = cPmjjby;
+                document.getElementById('commitCardPmsby').innerText = cPmsby;
+                document.getElementById('commitCardApy').innerText = cApy;
+                document.getElementById('commitmentTotalSum').innerText = cPmjdy + cPmjjby + cPmsby + cApy;
+            } else {
+                document.getElementById('commitCardPmjdy').innerText = '-';
+                document.getElementById('commitCardPmjjby').innerText = '-';
+                document.getElementById('commitCardPmsby').innerText = '-';
+                document.getElementById('commitCardApy').innerText = '-';
+                document.getElementById('commitmentTotalSum').innerText = '0';
+            }
+
             const adminBypassBox = document.getElementById('adminBypassNoticeBox');
             freshBc.bypassTime ? adminBypassBox.classList.remove('hidden') : adminBypassBox.classList.add('hidden');
 
@@ -1390,7 +1871,6 @@
             const checkInInfoBox = document.getElementById('checkInInfoBox');
             const checkOutInfoBox = document.getElementById('checkOutInfoBox');
             const statusBadge = document.getElementById('dailyStatusBadge');
-            const btnSubmitEod = document.getElementById('btnSubmitEodCheckout');
             const checkOutNotice = document.getElementById('checkOutNoticeBox');
             const btnHeaderCheckIn = document.getElementById('btnHeaderCheckIn');
             const headerActionText = document.getElementById('headerActionText');
@@ -1400,13 +1880,11 @@
             const todayCheckOutReq = cloudRequests.find(r => r.bcCode === freshBc.code && r.type === 'CHECK_OUT' && r.date === today);
 
             if (!todayRecord) {
-                // NOT CHECKED IN YET
                 btnTriggerCheckOut.classList.add('hidden');
                 boxRequestCheckOut.classList.add('hidden');
                 checkInInfoBox.classList.add('hidden');
                 checkOutInfoBox.classList.add('hidden');
                 statusBadge.innerText = "Check-In Pending";
-                btnSubmitEod.disabled = true;
 
                 if (canCheckIn) {
                     btnCheckIn.disabled = false;
@@ -1415,9 +1893,8 @@
                     btnHeaderCheckIn.disabled = false;
                     headerActionText.innerText = "Quick Check-In";
                     checkOutNotice.classList.remove('hidden');
-                    checkOutNotice.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-600 mr-1"></i> Check-In required before EOD report.`;
+                    checkOutNotice.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-600 mr-1"></i> Check-In required before EOD report & Check-Out.`;
                 } else {
-                    // TIME UP FOR CHECK-IN
                     btnCheckIn.classList.add('hidden');
                     boxRequestCheckIn.classList.remove('hidden');
                     btnHeaderCheckIn.disabled = false;
@@ -1435,7 +1912,6 @@
                     checkOutNotice.innerHTML = `<i class="fa-solid fa-clock text-rose-600 mr-1"></i> Check-in time (08:00 AM - 10:00 AM) is over. Request permission above.`;
                 }
             } else if (!todayRecord.checkOutTime) {
-                // CHECKED IN, CHECK-OUT PENDING
                 btnCheckIn.classList.add('hidden');
                 boxRequestCheckIn.classList.add('hidden');
                 checkInInfoBox.classList.remove('hidden');
@@ -1448,16 +1924,13 @@
                     btnTriggerCheckOut.classList.remove('hidden');
                     boxRequestCheckOut.classList.add('hidden');
                     btnHeaderCheckIn.disabled = false;
-                    headerActionText.innerText = "Go to Check-Out";
-                    btnSubmitEod.disabled = false;
+                    headerActionText.innerText = "EOD & Check-Out";
                     checkOutNotice.classList.add('hidden');
                 } else {
-                    // TIME UP FOR CHECK-OUT
                     btnTriggerCheckOut.classList.add('hidden');
                     boxRequestCheckOut.classList.remove('hidden');
                     btnHeaderCheckIn.disabled = false;
                     headerActionText.innerText = "Request Check-Out";
-                    btnSubmitEod.disabled = true;
 
                     if (todayCheckOutReq && todayCheckOutReq.status === 'Pending') {
                         btnRequestCheckOut.classList.add('hidden');
@@ -1471,7 +1944,6 @@
                     checkOutNotice.innerHTML = `<i class="fa-solid fa-clock text-rose-600 mr-1"></i> Checkout window (06:00 PM - 08:00 PM) closed. Request permission above.`;
                 }
             } else {
-                // COMPLETED FOR TODAY
                 btnCheckIn.classList.add('hidden');
                 boxRequestCheckIn.classList.add('hidden');
                 btnTriggerCheckOut.classList.add('hidden');
@@ -1483,7 +1955,6 @@
                 checkOutInfoBox.classList.remove('hidden');
                 document.getElementById('checkOutTimeRecorded').innerText = todayRecord.checkOutTime;
                 statusBadge.innerText = "Completed";
-                btnSubmitEod.disabled = true;
                 checkOutNotice.classList.remove('hidden');
                 checkOutNotice.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> Today's EOD Report and checkout completed.`;
             }
@@ -1533,11 +2004,158 @@
             const today = getTodayDateString();
             const todayRecord = cloudAttendance.find(r => r.bcCode === currentAuthAgent?.code && r.date === today);
             if (!todayRecord) {
-                if (isCheckInTimeValid(currentAuthAgent)) handleCheckIn();
+                if (isCheckInTimeValid(currentAuthAgent)) openCheckInCommitmentModal();
                 else handleRequestTimePermission('CHECK_IN');
             } else if (!todayRecord.checkOutTime) {
-                if (isCheckOutTimeValid(currentAuthAgent)) scrollToEodReport();
+                if (isCheckOutTimeValid(currentAuthAgent)) openEodCheckoutModal();
                 else handleRequestTimePermission('CHECK_OUT');
+            }
+        };
+
+        // Open & Close EOD Report Check-Out Modal
+        window.openEodCheckoutModal = () => {
+            if (!currentAuthAgent) return;
+            if (!isCheckOutTimeValid(currentAuthAgent)) {
+                return showToast("Check-Out allowed only 06:00 PM - 08:00 PM", "error");
+            }
+            document.getElementById('modalEodCheckout').classList.remove('hidden');
+        };
+
+        window.closeEodCheckoutModal = () => {
+            document.getElementById('modalEodCheckout').classList.add('hidden');
+        };
+
+        // Open & Close Leave Application Modal
+        window.openLeaveRequestModal = () => {
+            if (!currentAuthAgent) return;
+            initLeaveDates();
+            document.getElementById('modalLeaveRequest').classList.remove('hidden');
+        };
+
+        window.closeLeaveRequestModal = () => {
+            document.getElementById('modalLeaveRequest').classList.add('hidden');
+        };
+
+        // Open Morning Check-In Commitment Modal with Admin Assigned Targets
+        window.openCheckInCommitmentModal = () => {
+            if (!currentAuthAgent) return;
+            if (!isCheckInTimeValid(currentAuthAgent)) {
+                return showToast("Check-in allowed only 08:00 AM - 10:00 AM", "error");
+            }
+
+            const tPmjdy = Number(cloudTargets.pmjdy) || 0;
+            const tPmjjby = Number(cloudTargets.pmjjby) || 0;
+            const tPmsby = Number(cloudTargets.pmsby) || 0;
+            const tApy = Number(cloudTargets.apy) || 0;
+
+            document.getElementById('modalAssignPmjdy').value = tPmjdy;
+            document.getElementById('modalAssignPmjjby').value = tPmjjby;
+            document.getElementById('modalAssignPmsby').value = tPmsby;
+            document.getElementById('modalAssignApy').value = tApy;
+            document.getElementById('modalAssignTotal').innerText = tPmjdy + tPmjjby + tPmsby + tApy;
+
+            // Default commitment inputs to minimum 1 so user can edit >= 1
+            document.getElementById('modalCommitPmjdy').value = '';
+            document.getElementById('modalCommitPmjjby').value = '';
+            document.getElementById('modalCommitPmsby').value = '';
+            document.getElementById('modalCommitApy').value = '';
+            document.getElementById('modalCommitTotal').innerText = '0';
+            document.getElementById('commitmentValidationError').classList.add('hidden');
+
+            document.getElementById('modalCheckInCommitment').classList.remove('hidden');
+        };
+
+        window.closeCheckInCommitmentModal = () => {
+            document.getElementById('modalCheckInCommitment').classList.add('hidden');
+        };
+
+        window.updateModalCommitmentTotal = () => {
+            const c1 = Math.max(0, parseInt(document.getElementById('modalCommitPmjdy').value, 10) || 0);
+            const c2 = Math.max(0, parseInt(document.getElementById('modalCommitPmjjby').value, 10) || 0);
+            const c3 = Math.max(0, parseInt(document.getElementById('modalCommitPmsby').value, 10) || 0);
+            const c4 = Math.max(0, parseInt(document.getElementById('modalCommitApy').value, 10) || 0);
+            document.getElementById('modalCommitTotal').innerText = c1 + c2 + c3 + c4;
+            if (c1 >= 1 && c2 >= 1 && c3 >= 1 && c4 >= 1) {
+                document.getElementById('commitmentValidationError').classList.add('hidden');
+            }
+        };
+
+        // Validate Minimum 1 Commitment per Segment and Complete Morning Check-In
+        window.submitCheckInWithCommitment = async (e) => {
+            e.preventDefault();
+            if (!currentAuthAgent) return;
+            if (!isCheckInTimeValid(currentAuthAgent)) {
+                closeCheckInCommitmentModal();
+                return showToast("Check-in allowed only 08:00 AM - 10:00 AM", "error");
+            }
+
+            const cPmjdy = parseInt(document.getElementById('modalCommitPmjdy').value, 10);
+            const cPmjjby = parseInt(document.getElementById('modalCommitPmjjby').value, 10);
+            const cPmsby = parseInt(document.getElementById('modalCommitPmsby').value, 10);
+            const cApy = parseInt(document.getElementById('modalCommitApy').value, 10);
+
+            // Strict validation: Zero or empty is NOT allowed; Minimum 1 required in every box
+            if (
+                isNaN(cPmjdy) || cPmjdy < 1 ||
+                isNaN(cPmjjby) || cPmjjby < 1 ||
+                isNaN(cPmsby) || cPmsby < 1 ||
+                isNaN(cApy) || cApy < 1
+            ) {
+                document.getElementById('commitmentValidationError').classList.remove('hidden');
+                return showToast("প্রতিটি সেগমেন্টে মিনিমাম ১ (1) এন্ট্রি করতে হবে!", "error");
+            }
+
+            const btn = document.getElementById('btnConfirmCommitmentCheckIn');
+            btn.disabled = true;
+
+            const gps = await getGPSLocation();
+            const now = new Date();
+            const today = getTodayDateString();
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            const docId = `${currentAuthAgent.code}_${today}`;
+
+            const tPmjdy = Number(cloudTargets.pmjdy) || 0;
+            const tPmjjby = Number(cloudTargets.pmjjby) || 0;
+            const tPmsby = Number(cloudTargets.pmsby) || 0;
+            const tApy = Number(cloudTargets.apy) || 0;
+
+            try {
+                await setDoc(doc(db, "attendance_mis", docId), {
+                    date: today,
+                    bcCode: currentAuthAgent.code,
+                    bcName: currentAuthAgent.name,
+                    branch: currentAuthAgent.branch,
+                    location: currentAuthAgent.location || '',
+                    zone: currentAuthAgent.zone || '',
+                    mobile: currentAuthAgent.mobile,
+                    checkInTime: timeString,
+                    checkInGPS: gps,
+                    checkOutTime: null,
+                    // Assigned Targets snapshot at Check-In
+                    assignPmjdy: tPmjdy,
+                    assignPmjjby: tPmjjby,
+                    assignPmsby: tPmsby,
+                    assignApy: tApy,
+                    // BC Daily Commitments (Min 1 each)
+                    commitPmjdy: cPmjdy,
+                    commitPmjjby: cPmjjby,
+                    commitPmsby: cPmsby,
+                    commitApy: cApy,
+                    commitTotal: cPmjdy + cPmjjby + cPmsby + cApy,
+                    // EOD Actuals (Initialized to 0 until Checkout)
+                    pmjdyEnroll: 0, pmjdyAuth: 0,
+                    pmsbyEnroll: 0, pmsbyAuth: 0,
+                    pmjjbyEnroll: 0, pmjjbyAuth: 0,
+                    apyEnroll: 0, apyAuth: 0,
+                    remarks: "",
+                    status: "Checked In"
+                });
+                closeCheckInCommitmentModal();
+                showToast("Commitment Saved & Morning Check-In Completed!", "success");
+            } catch (err) {
+                showToast("Check-In failed: " + err.message, "error");
+            } finally {
+                btn.disabled = false;
             }
         };
 
@@ -1549,18 +2167,6 @@
             document.getElementById('sectionLeaveRequestCard')?.scrollIntoView({ behavior: 'smooth' });
         };
 
-        window.calculateLeaveDays = () => {
-            const fromVal = document.getElementById('leaveFromDate').value;
-            const toVal = document.getElementById('leaveToDate').value;
-            if (fromVal && toVal) {
-                const d1 = new Date(fromVal);
-                const d2 = new Date(toVal);
-                const diff = Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
-                document.getElementById('leaveTotalDays').value = diff > 0 ? diff : 1;
-            }
-        };
-
-        // NEW: Submit Leave Request to Firestore `bc_requests`
         window.handleSubmitLeaveRequest = async (e) => {
             e.preventDefault();
             if (!currentAuthAgent) return;
@@ -1599,6 +2205,7 @@
                     timestamp: Date.now()
                 });
                 document.getElementById('leaveReasonText').value = '';
+                closeLeaveRequestModal();
                 showToast("Leave Request sent to Admin!", "success");
             } catch (err) {
                 showToast("Failed to send leave request: " + err.message, "error");
@@ -1607,7 +2214,6 @@
             }
         };
 
-        // Submit Time-Up Check-In or Check-Out Permission Request
         window.handleRequestTimePermission = async (reqType) => {
             if (!currentAuthAgent) return;
             const today = getTodayDateString();
@@ -1621,7 +2227,7 @@
 
             try {
                 await setDoc(doc(db, "portal_requests", reqId), {
-                    type: reqType, // 'CHECK_IN' or 'CHECK_OUT'
+                    type: reqType,
                     bcCode: currentAuthAgent.code,
                     bcName: currentAuthAgent.name,
                     branch: currentAuthAgent.branch,
@@ -1702,6 +2308,7 @@
                     remarks: document.getElementById('repRemarks').value.trim(),
                     status: "Completed"
                 });
+                closeEodCheckoutModal();
                 showToast("EOD Report & Checkout synced to Cloud!", "success");
             } catch (err) {
                 showToast("Error submitting EOD: " + err.message, "error");
@@ -1710,7 +2317,7 @@
 
         // ADMIN FUNCTIONS
         window.switchAdminTab = (tabId) => {
-            ['tabRequests', 'tabWhatsappAlerts', 'tabAddMember', 'tabNoticeBoard', 'tabSetTarget', 'tabAttendanceTable', 'tabDirectory'].forEach(id => {
+            ['tabRequests', 'tabBcCommitments', 'tabWhatsappAlerts', 'tabAddMember', 'tabNoticeBoard', 'tabSetTarget', 'tabAttendanceTable', 'tabDirectory'].forEach(id => {
                 document.getElementById(id)?.classList.add('hidden');
             });
             document.getElementById(tabId)?.classList.remove('hidden');
@@ -1723,8 +2330,17 @@
                 filterAttendanceTable();
             }
 
+            if (tabId === 'tabBcCommitments') {
+                const commDateInput = document.getElementById('filterCommitmentDate');
+                if (commDateInput && !commDateInput.value) {
+                    commDateInput.value = getTodayDateString();
+                }
+                renderAdminCommitmentTable();
+            }
+
             const map = {
                 'tabRequests': 'navTabRequests',
+                'tabBcCommitments': 'navTabCommitments',
                 'tabWhatsappAlerts': 'navTabWhatsapp',
                 'tabAddMember': 'navTabAddMember',
                 'tabNoticeBoard': 'navTabNotice',
@@ -1766,7 +2382,6 @@
             renderAdminRequests();
         };
 
-        // Admin Action on Request (Approve / Reject)
         window.handleAdminRequestDecision = async (reqId, decision) => {
             const req = cloudRequests.find(r => r.id === reqId);
             if (!req) return;
@@ -1777,7 +2392,6 @@
                     reviewedAt: new Date().toLocaleString('en-IN')
                 });
 
-                // If Approving CHECK_IN or CHECK_OUT, automatically enable bypassTime on the BC member
                 if (decision === 'Approved' && (req.type === 'CHECK_IN' || req.type === 'CHECK_OUT')) {
                     await updateDoc(doc(db, "bc_members", req.bcCode), {
                         bypassTime: true
@@ -2036,9 +2650,221 @@
             renderAdminDirectory();
             renderAdminRequests();
             renderAdminWhatsappLists();
+            renderAdminCommitmentTable();
             filterAttendanceTable();
         }
 
+        // Reset Commitment Date Filter to Today
+        window.resetCommitmentDateToToday = () => {
+            const dateInput = document.getElementById('filterCommitmentDate');
+            if (dateInput) {
+                dateInput.value = getTodayDateString();
+                renderAdminCommitmentTable();
+                showToast("Showing today's BC commitments", "info");
+            }
+        };
+
+        // Render Daily BC Scheme Commitments Table & Totals Bar
+        window.renderAdminCommitmentTable = () => {
+            const commTbody = document.getElementById('commitmentTableBody');
+            if (!commTbody) return;
+
+            const dateInput = document.getElementById('filterCommitmentDate');
+            if (dateInput && !dateInput.value) {
+                dateInput.value = getTodayDateString();
+            }
+            const selectedDate = dateInput?.value || getTodayDateString();
+            const q = document.getElementById('searchCommitmentInput')?.value.toLowerCase().trim() || '';
+
+            const dateRecords = cloudAttendance.filter(r => r.date === selectedDate);
+            const filtered = dateRecords.filter(r =>
+                (r.bcCode || '').toLowerCase().includes(q) ||
+                (r.bcName || '').toLowerCase().includes(q) ||
+                (r.branch || '').toLowerCase().includes(q)
+            );
+
+            let totPmjdy = 0, totPmjjby = 0, totPmsby = 0, totApy = 0, grandTotal = 0;
+            dateRecords.forEach(r => {
+                const c1 = Number(r.commitPmjdy) || 0;
+                const c2 = Number(r.commitPmjjby) || 0;
+                const c3 = Number(r.commitPmsby) || 0;
+                const c4 = Number(r.commitApy) || 0;
+                totPmjdy += c1;
+                totPmjjby += c2;
+                totPmsby += c3;
+                totApy += c4;
+                grandTotal += (c1 + c2 + c3 + c4);
+            });
+
+            const cntEl = document.getElementById('commSummaryCount');
+            const p1El = document.getElementById('commSummaryPmjdy');
+            const p2El = document.getElementById('commSummaryPmjjby');
+            const p3El = document.getElementById('commSummaryPmsby');
+            const p4El = document.getElementById('commSummaryApy');
+            const gtEl = document.getElementById('commSummaryGrandTotal');
+
+            if (cntEl) cntEl.innerText = dateRecords.length;
+            if (p1El) p1El.innerText = totPmjdy;
+            if (p2El) p2El.innerText = totPmjjby;
+            if (p3El) p3El.innerText = totPmsby;
+            if (p4El) p4El.innerText = totApy;
+            if (gtEl) gtEl.innerText = grandTotal;
+
+            if (filtered.length === 0) {
+                commTbody.innerHTML = `<tr><td colspan="11" class="p-4 text-center text-slate-400">No BC commitments found for ${selectedDate}.</td></tr>`;
+                return;
+            }
+
+            commTbody.innerHTML = filtered.map((r, idx) => {
+                const c1 = Number(r.commitPmjdy) || 0;
+                const c2 = Number(r.commitPmjjby) || 0;
+                const c3 = Number(r.commitPmsby) || 0;
+                const c4 = Number(r.commitApy) || 0;
+                const rowTot = c1 + c2 + c3 + c4;
+                return `
+                <tr class="hover:bg-slate-50 text-[11px]">
+                    <td class="p-2.5 font-mono text-slate-500">${idx + 1}</td>
+                    <td class="p-2.5 font-mono">${r.date}</td>
+                    <td class="p-2.5 font-bold font-mono text-blue-700">${r.bcCode}</td>
+                    <td class="p-2.5 font-semibold text-slate-800">${r.bcName}</td>
+                    <td class="p-2.5 text-slate-600">${r.branch || '-'} <span class="font-mono text-[10px] text-slate-400 block">${r.mobile || ''}</span></td>
+                    <td class="p-2.5 font-mono text-emerald-700 font-semibold">${r.checkInTime || '-'}</td>
+                    <td class="p-2.5 text-center bg-blue-50/40 font-mono font-bold text-blue-900">${c1}</td>
+                    <td class="p-2.5 text-center bg-purple-50/40 font-mono font-bold text-purple-900">${c2}</td>
+                    <td class="p-2.5 text-center bg-amber-50/40 font-mono font-bold text-amber-900">${c3}</td>
+                    <td class="p-2.5 text-center bg-emerald-50/40 font-mono font-bold text-emerald-900">${c4}</td>
+                    <td class="p-2.5 text-center bg-slate-100 font-mono font-black text-slate-900">${rowTot}</td>
+                </tr>`;
+            }).join('');
+        };
+
+        // Helper: Open Clean Printable PDF Window
+        function openPrintablePdfWindow(title, subtitle, headers, rowsHtml, summaryHtml) {
+            const win = window.open('', '_blank', 'width=960,height=720');
+            if (!win) {
+                return showToast("Please allow pop-ups in your browser to download PDF.", "error");
+            }
+            const thHtml = headers.map(h => `<th>${h}</th>`).join('');
+            win.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${title} - Mitr Sewa</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; color: #0f172a; }
+                        .header { border-bottom: 2px solid #f59e0b; padding-bottom: 10px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+                        .header h1 { margin: 0; font-size: 18px; color: #0f172a; }
+                        .header p { margin: 2px 0 0; font-size: 12px; color: #475569; }
+                        .summary { background: #fef3c7; border: 1px solid #f59e0b; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 14px; }
+                        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+                        th, td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: left; }
+                        th { background: #0f172a; color: #ffffff; text-transform: uppercase; font-size: 10px; }
+                        tr:nth-child(even) { background: #f8fafc; }
+                        .center { text-align: center; }
+                        .bold { font-weight: bold; }
+                        .footer { margin-top: 16px; font-size: 10px; color: #64748b; text-align: right; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div>
+                            <h1>MITR SEWA - ${title}</h1>
+                            <p>${subtitle}</p>
+                        </div>
+                        <div style="text-align:right; font-size:11px; color:#475569;">
+                            Generated: ${new Date().toLocaleString('en-IN')}
+                        </div>
+                    </div>
+                    <div class="summary">${summaryHtml}</div>
+                    <table>
+                        <thead><tr>${thHtml}</tr></thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+                    <div class="footer">Mitr Sewa Insurance & Fintech Pvt. Ltd. • Territory MIS Report</div>
+                    <script>window.onload = function() { window.print(); };<\/script>
+                </body>
+                </html>
+            `);
+            win.document.close();
+        }
+
+        // Export Daily BC Commitments to Excel (CSV)
+        window.exportCommitmentsExcel = () => {
+            const selectedDate = document.getElementById('filterCommitmentDate')?.value || getTodayDateString();
+            const records = cloudAttendance.filter(r => r.date === selectedDate);
+            if (!records.length) return showToast(`No BC commitment records for ${selectedDate}!`, "info");
+
+            let totP1 = 0, totP2 = 0, totP3 = 0, totP4 = 0, totAll = 0;
+            const headers = ["SL", "Date", "BC Code", "BC Name", "Branch", "Mobile", "Check-In Time", "PMJDY Commit", "PMJJBY Commit", "PMSBY Commit", "APY Commit", "Total Commitment"];
+            const rows = records.map((r, idx) => {
+                const c1 = Number(r.commitPmjdy) || 0;
+                const c2 = Number(r.commitPmjjby) || 0;
+                const c3 = Number(r.commitPmsby) || 0;
+                const c4 = Number(r.commitApy) || 0;
+                const sum = c1 + c2 + c3 + c4;
+                totP1 += c1; totP2 += c2; totP3 += c3; totP4 += c4; totAll += sum;
+                return [
+                    idx + 1, r.date, r.bcCode, `"${r.bcName}"`, `"${r.branch}"`, r.mobile || '',
+                    `"${r.checkInTime || ''}"`, c1, c2, c3, c4, sum
+                ];
+            });
+            rows.push(["", "", "", `"GRAND TOTAL"`, "", "", "", totP1, totP2, totP3, totP4, totAll]);
+
+            const csv = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+            const link = document.createElement("a");
+            link.href = encodeURI(csv);
+            link.download = `Mitr_Sewa_BC_Commitments_${selectedDate}.csv`;
+            link.click();
+            showToast(`BC Commitments Excel (${selectedDate}) downloaded!`, "success");
+        };
+
+        // Export Daily BC Commitments to PDF
+        window.exportCommitmentsPdf = () => {
+            const selectedDate = document.getElementById('filterCommitmentDate')?.value || getTodayDateString();
+            const records = cloudAttendance.filter(r => r.date === selectedDate);
+            if (!records.length) return showToast(`No BC commitment records for ${selectedDate}!`, "info");
+
+            let totP1 = 0, totP2 = 0, totP3 = 0, totP4 = 0, totAll = 0;
+            const rowsHtml = records.map((r, idx) => {
+                const c1 = Number(r.commitPmjdy) || 0;
+                const c2 = Number(r.commitPmjjby) || 0;
+                const c3 = Number(r.commitPmsby) || 0;
+                const c4 = Number(r.commitApy) || 0;
+                const sum = c1 + c2 + c3 + c4;
+                totP1 += c1; totP2 += c2; totP3 += c3; totP4 += c4; totAll += sum;
+                return `<tr>
+                    <td class="center">${idx + 1}</td>
+                    <td>${r.bcCode}</td>
+                    <td class="bold">${r.bcName}</td>
+                    <td>${r.branch}</td>
+                    <td>${r.mobile || '-'}</td>
+                    <td>${r.checkInTime || '-'}</td>
+                    <td class="center">${c1}</td>
+                    <td class="center">${c2}</td>
+                    <td class="center">${c3}</td>
+                    <td class="center">${c4}</td>
+                    <td class="center bold">${sum}</td>
+                </tr>`;
+            }).join('') + `<tr style="background:#fef3c7; font-weight:bold;">
+                <td colspan="6" style="text-align:right;">GRAND TOTAL:</td>
+                <td class="center">${totP1}</td>
+                <td class="center">${totP2}</td>
+                <td class="center">${totP3}</td>
+                <td class="center">${totP4}</td>
+                <td class="center">${totAll}</td>
+            </tr>`;
+
+            const summaryHtml = `Date: ${selectedDate} &nbsp;|&nbsp; Committed BCs: ${records.length} &nbsp;|&nbsp; PMJDY: ${totP1} &nbsp;|&nbsp; PMJJBY: ${totP2} &nbsp;|&nbsp; PMSBY: ${totP3} &nbsp;|&nbsp; APY: ${totP4} &nbsp;|&nbsp; Grand Total: ${totAll}`;
+            openPrintablePdfWindow(
+                "Daily BC Scheme Commitment Report",
+                `Commitment Date: ${selectedDate}`,
+                ["SL", "BC Code", "BC Name", "Branch", "Mobile", "Check-In", "PMJDY", "PMJJBY", "PMSBY", "APY", "Total"],
+                rowsHtml,
+                summaryHtml
+            );
+        };
+
+        // Render Cloud BC Member Directory Table (Showing Code, Name, Branch, Location, Mobile, Password)
         window.renderAdminDirectory = () => {
             const dirTbody = document.getElementById('directoryTableBody');
             if (!dirTbody) return;
@@ -2047,11 +2873,12 @@
                 (m.code || '').toLowerCase().includes(q) ||
                 (m.name || '').toLowerCase().includes(q) ||
                 (m.branch || '').toLowerCase().includes(q) ||
+                (m.location || '').toLowerCase().includes(q) ||
                 (m.mobile || '').includes(q)
             );
 
-            dirTbody.innerHTML = filteredMembers.length === 0 
-                ? `<tr><td colspan="7" class="p-4 text-center text-slate-400">No matching BC IDs in Cloud.</td></tr>`
+            dirTbody.innerHTML = filteredMembers.length === 0
+                ? `<tr><td colspan="8" class="p-4 text-center text-slate-400">No matching BC IDs in Cloud.</td></tr>`
                 : filteredMembers.map(m => {
                     const cleanPhone = String(m.mobile || '').replace(/\D/g, '');
                     const waPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
@@ -2059,7 +2886,8 @@
                     <tr class="hover:bg-slate-50">
                         <td class="p-2.5 font-bold font-mono text-blue-700">${m.code}</td>
                         <td class="p-2.5 font-semibold text-slate-800">${m.name}</td>
-                        <td class="p-2.5">${m.branch}</td>
+                        <td class="p-2.5 font-medium text-slate-700">${m.branch || '-'}</td>
+                        <td class="p-2.5 text-slate-600">${m.location || '-'}</td>
                         <td class="p-2.5 font-mono">
                             <div class="flex items-center gap-1.5">
                                 <span>${m.mobile}</span>
@@ -2080,37 +2908,57 @@
                 }).join('');
         };
 
-        // Render Pending Check-In & Check-Out lists in Admin Manual WhatsApp Alerts Tab
-        function renderAdminWhatsappLists() {
+        // Render Pending Check-In & Check-Out Lists & Serial-Wise Urgent Group Notice Previews
+        window.renderAdminWhatsappLists = () => {
             const today = getTodayDateString();
             const labelEl = document.getElementById('waDeskTodayLabel');
-            if (labelEl) labelEl.innerText = today;
+            if (labelEl) labelEl.innerText = formatDisplayDateDDMMYYYY(today);
 
             const todayRecords = cloudAttendance.filter(r => r.date === today);
-
             const pendingCheckInBcs = cloudMembers.filter(m => !todayRecords.some(r => r.bcCode === m.code));
             const pendingCheckOutBcs = cloudMembers.filter(m => todayRecords.some(r => r.bcCode === m.code && !r.checkOutTime));
 
             const cInEl = document.getElementById('countPendingCheckInWa');
             const cOutEl = document.getElementById('countPendingCheckOutWa');
-            if (cInEl) cInEl.innerText = pendingCheckInBcs.length;
-            if (cOutEl) cOutEl.innerText = pendingCheckOutBcs.length;
+            if (cInEl) cInEl.innerText = `${pendingCheckInBcs.length} Pending`;
+            if (cOutEl) cOutEl.innerText = `${pendingCheckOutBcs.length} Pending`;
+
+            const fullCheckInMsg = buildFullGroupReminderText('CHECK_IN');
+            const fullCheckOutMsg = buildFullGroupReminderText('CHECK_OUT');
+
+            const prevIn = document.getElementById('previewCheckInNoticeText');
+            const prevOut = document.getElementById('previewCheckOutNoticeText');
+            if (prevIn) prevIn.innerText = fullCheckInMsg;
+            if (prevOut) prevOut.innerText = fullCheckOutMsg;
+
+            const shareInBtn = document.getElementById('btnShareFullCheckInGroup');
+            const shareOutBtn = document.getElementById('btnShareFullCheckOutGroup');
+            if (shareInBtn) shareInBtn.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(fullCheckInMsg)}`;
+            if (shareOutBtn) shareOutBtn.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(fullCheckOutMsg)}`;
 
             const listInEl = document.getElementById('listPendingCheckInWa');
             if (listInEl) {
                 listInEl.innerHTML = pendingCheckInBcs.length === 0
                     ? `<p class="text-[11px] text-emerald-700 font-semibold">All registered BCs have completed Check-In today!</p>`
-                    : pendingCheckInBcs.map(bc => {
-                        const wa = buildWhatsappAlertPayload(bc, 'CHECK_IN');
+                    : pendingCheckInBcs.map((bc, idx) => {
+                        const serial = idx + 1;
+                        const wa = buildIndividualGroupReminderPayload(bc, 'CHECK_IN', serial);
+                        const rawMob = String(bc.mobile || '').replace(/\D/g, '');
+                        const cleanMob = rawMob.length === 12 && rawMob.startsWith('91') ? rawMob.slice(2) : rawMob;
                         return `
                         <div class="p-2.5 bg-white rounded-xl border border-rose-200 flex items-center justify-between gap-2">
                             <div class="min-w-0">
-                                <p class="font-bold text-slate-900 truncate">${bc.name} <span class="font-mono text-blue-700">(${bc.code})</span></p>
-                                <p class="text-[10px] text-slate-500 font-mono">${bc.branch} &bull; ${bc.mobile}</p>
+                                <p class="font-bold text-slate-900 truncate"><span class="text-rose-600 font-mono">#${serial}</span> ${bc.name} <span class="font-mono text-blue-700">(${bc.code})</span></p>
+                                <p class="text-[10px] text-slate-500 font-mono">${bc.branch} &bull; ${bc.location || 'N/A'} &bull; @${cleanMob}</p>
                             </div>
-                            <a href="${wa.url}" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] shrink-0 flex items-center gap-1 shadow-sm">
-                                <i class="fa-brands fa-whatsapp text-xs"></i> Send Check-In WhatsApp
-                            </a>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <button type="button" onclick="copySingleBcGroupReminder('${bc.code}', 'CHECK_IN', ${serial})" class="px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] border border-slate-300" title="Copy Notice">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                                <a href="${wa.groupShareUrl}" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] flex items-center gap-1 shadow-xs">
+                                    <i class="fa-brands fa-whatsapp text-xs"></i> Send to Group
+                                </a>
+                            </div>
                         </div>`;
                     }).join('');
             }
@@ -2119,33 +2967,44 @@
             if (listOutEl) {
                 listOutEl.innerHTML = pendingCheckOutBcs.length === 0
                     ? `<p class="text-[11px] text-slate-500 italic">No pending check-outs right now.</p>`
-                    : pendingCheckOutBcs.map(bc => {
-                        const wa = buildWhatsappAlertPayload(bc, 'CHECK_OUT');
+                    : pendingCheckOutBcs.map((bc, idx) => {
+                        const serial = idx + 1;
+                        const wa = buildIndividualGroupReminderPayload(bc, 'CHECK_OUT', serial);
+                        const rawMob = String(bc.mobile || '').replace(/\D/g, '');
+                        const cleanMob = rawMob.length === 12 && rawMob.startsWith('91') ? rawMob.slice(2) : rawMob;
                         return `
                         <div class="p-2.5 bg-white rounded-xl border border-amber-200 flex items-center justify-between gap-2">
                             <div class="min-w-0">
-                                <p class="font-bold text-slate-900 truncate">${bc.name} <span class="font-mono text-blue-700">(${bc.code})</span></p>
-                                <p class="text-[10px] text-slate-500 font-mono">${bc.branch} &bull; ${bc.mobile}</p>
+                                <p class="font-bold text-slate-900 truncate"><span class="text-amber-600 font-mono">#${serial}</span> ${bc.name} <span class="font-mono text-blue-700">(${bc.code})</span></p>
+                                <p class="text-[10px] text-slate-500 font-mono">${bc.branch} &bull; ${bc.location || 'N/A'} &bull; @${cleanMob}</p>
                             </div>
-                            <a href="${wa.url}" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] shrink-0 flex items-center gap-1 shadow-sm">
-                                <i class="fa-brands fa-whatsapp text-xs"></i> Send Check-Out WhatsApp
-                            </a>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <button type="button" onclick="copySingleBcGroupReminder('${bc.code}', 'CHECK_OUT', ${serial})" class="px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] border border-slate-300" title="Copy Notice">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                                <a href="${wa.groupShareUrl}" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] flex items-center gap-1 shadow-xs">
+                                    <i class="fa-brands fa-whatsapp text-xs"></i> Send to Group
+                                </a>
+                            </div>
                         </div>`;
                     }).join('');
             }
-        }
+        };
 
+        // Render Master Attendance MIS Table Rows
         function renderAttendanceRows(list) {
             const attTbody = document.getElementById('attendanceTableBody');
             if (!attTbody) return;
             if (list.length === 0) {
-                attTbody.innerHTML = `<tr><td colspan="11" class="p-4 text-center text-slate-400">No attendance logs found for selected date.</td></tr>`;
+                attTbody.innerHTML = `<tr><td colspan="12" class="p-4 text-center text-slate-400">No attendance logs found for selected date.</td></tr>`;
                 return;
             }
             attTbody.innerHTML = [...list].reverse().map(r => {
                 const totalEnr = (r.pmjdyEnroll||0) + (r.pmsbyEnroll||0) + (r.pmjjbyEnroll||0) + (r.apyEnroll||0);
                 const totalAuth = (r.pmjdyAuth||0) + (r.pmsbyAuth||0) + (r.pmjjbyAuth||0) + (r.apyAuth||0);
                 const gpsTag = r.checkInGPS ? `<a href="https://maps.google.com/?q=${r.checkInGPS}" target="_blank" class="text-blue-600 underline text-[10px] block"><i class="fa-solid fa-location-dot"></i> Map</a>` : '';
+                const docId = r._docId || `${r.bcCode}_${r.date}`;
+                const safeName = String(r.bcName || r.bcCode || '').replace(/'/g, "\\'");
                 return `
                 <tr class="hover:bg-slate-50 text-[11px]">
                     <td class="p-2.5 font-mono">${r.date}</td>
@@ -2159,10 +3018,56 @@
                     <td class="p-2.5 text-center bg-emerald-50/30">${r.apyEnroll||0} / ${r.apyAuth||0}</td>
                     <td class="p-2.5 text-center bg-slate-100 font-bold">${totalEnr} / ${totalAuth}</td>
                     <td class="p-2.5 text-slate-500 max-w-[140px] truncate" title="${r.remarks || ''}">${r.remarks || '-'}</td>
+                    <td class="p-2.5 text-center">
+                        <button onclick="deleteAttendanceRecord('${docId}', '${safeName}', '${r.date}')" class="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200 transition-all" title="Delete Attendance Entry">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
                 </tr>`;
             }).join('');
         }
 
+        // Delete Individual Attendance MIS Entry from Firebase Cloud
+        window.deleteAttendanceRecord = (docId, bcName, dateStr) => {
+            openConfirmModal(
+                "Delete Attendance MIS Record",
+                `Are you sure you want to permanently delete ${bcName}'s attendance record for ${dateStr}?`,
+                async () => {
+                    try {
+                        await deleteDoc(doc(db, "attendance_mis", docId));
+                        showToast(`Deleted MIS record for ${bcName} (${dateStr})`, "info");
+                    } catch (err) {
+                        showToast("Failed to delete record: " + err.message, "error");
+                    }
+                }
+            );
+        };
+
+        // Delete All Attendance MIS Entries for the Currently Selected Date
+        window.deleteAllAttendanceForSelectedDate = () => {
+            const selectedDate = document.getElementById('filterAttendanceDate')?.value || getTodayDateString();
+            const recordsForDate = cloudAttendance.filter(r => r.date === selectedDate);
+            if (recordsForDate.length === 0) {
+                return showToast(`No attendance MIS records found for ${selectedDate}.`, "info");
+            }
+            openConfirmModal(
+                `Clear All MIS (${selectedDate})`,
+                `Are you sure you want to permanently delete all ${recordsForDate.length} attendance records for ${selectedDate}?`,
+                async () => {
+                    try {
+                        for (const rec of recordsForDate) {
+                            const id = rec._docId || `${rec.bcCode}_${rec.date}`;
+                            await deleteDoc(doc(db, "attendance_mis", id));
+                        }
+                        showToast(`Cleared all ${recordsForDate.length} MIS records for ${selectedDate}!`, "success");
+                    } catch (err) {
+                        showToast("Error clearing date MIS: " + err.message, "error");
+                    }
+                }
+            );
+        };
+
+        // Filter Master Attendance MIS Table & Update Summary Cards
         window.filterAttendanceTable = () => {
             const q = document.getElementById('searchAttendance')?.value.toLowerCase() || '';
             const dateInput = document.getElementById('filterAttendanceDate');
@@ -2173,17 +3078,16 @@
 
             const dateRecords = cloudAttendance.filter(r => r.date === dateFilter);
             const filtered = dateRecords.filter(r =>
-                (r.bcCode||'').toLowerCase().includes(q) || (r.bcName||'').toLowerCase().includes(q)
+                (r.bcCode || '').toLowerCase().includes(q) || (r.bcName || '').toLowerCase().includes(q)
             );
 
-            // Update Daily Summary Bar for selected date
             const presentCount = dateRecords.length;
             const pendingOutCount = dateRecords.filter(r => !r.checkOutTime).length;
             const absentCount = Math.max(0, cloudMembers.length - presentCount);
             let sumEnr = 0, sumAuth = 0;
             dateRecords.forEach(r => {
-                sumEnr += (r.pmjdyEnroll||0) + (r.pmsbyEnroll||0) + (r.pmjjbyEnroll||0) + (r.apyEnroll||0);
-                sumAuth += (r.pmjdyAuth||0) + (r.pmsbyAuth||0) + (r.pmjjbyAuth||0) + (r.apyAuth||0);
+                sumEnr += (r.pmjdyEnroll || 0) + (r.pmsbyEnroll || 0) + (r.pmjjbyEnroll || 0) + (r.apyEnroll || 0);
+                sumAuth += (r.pmjdyAuth || 0) + (r.pmsbyAuth || 0) + (r.pmjjbyAuth || 0) + (r.apyAuth || 0);
             });
 
             const pEl = document.getElementById('misSummaryPresent');
@@ -2208,23 +3112,84 @@
 
             let pmjdyE = 0, pmjdyA = 0, pmsbyE = 0, pmsbyA = 0, pmjjbyE = 0, pmjjbyA = 0, apyE = 0, apyA = 0;
             records.forEach(r => {
-                pmjdyE += Number(r.pmjdyEnroll)||0; pmjdyA += Number(r.pmjdyAuth)||0;
-                pmsbyE += Number(r.pmsbyEnroll)||0; pmsbyA += Number(r.pmsbyAuth)||0;
-                pmjjbyE += Number(r.pmjjbyEnroll)||0; pmjjbyA += Number(r.pmjjbyAuth)||0;
-                apyE += Number(r.apyEnroll)||0; apyA += Number(r.apyAuth)||0;
+                pmjdyE += Number(r.pmjdyEnroll) || 0; pmjdyA += Number(r.pmjdyAuth) || 0;
+                pmsbyE += Number(r.pmsbyEnroll) || 0; pmsbyA += Number(r.pmsbyAuth) || 0;
+                pmjjbyE += Number(r.pmjjbyEnroll) || 0; pmjjbyA += Number(r.pmjjbyAuth) || 0;
+                apyE += Number(r.apyEnroll) || 0; apyA += Number(r.apyAuth) || 0;
             });
             const totE = pmjdyE + pmsbyE + pmjjbyE + apyE;
             const totA = pmjdyA + pmsbyA + pmjjbyA + apyA;
 
             const summaryText = `📊 *MITR SEWA TERRITORY DAILY MIS*\n📅 Date: *${selectedDate}*\n\n👥 Total Registered BCs: *${cloudMembers.length}*\n✅ Checked-In: *${checkedInCount}*\n🏁 Checked-Out: *${checkedOutCount}*\n⚠️ Not Checked-In: *${absentCount}*\n\n📈 *Scheme Performance (Enroll / Auth):*\n• PMJDY: ${pmjdyE} / ${pmjdyA}\n• PMSBY: ${pmsbyE} / ${pmsbyA}\n• PMJJBY: ${pmjjbyE} / ${pmjjbyA}\n• APY: ${apyE} / ${apyA}\n🏆 *Grand Total:* ${totE} Enrolled | ${totA} Auth\n\n- Mitr Sewa Territory Desk`;
 
-            const tempArea = document.createElement('textarea');
-            tempArea.value = summaryText;
-            document.body.appendChild(tempArea);
-            tempArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempArea);
+            copyTextToClipboard(summaryText);
             showToast("Daily Territory MIS copied for WhatsApp!", "success");
+        };
+
+        // 3. Export Daily Attendance Check-In / Check-Out MIS to Excel (CSV)
+        window.exportDailyAttendanceExcel = () => {
+            const selectedDate = document.getElementById('filterAttendanceDate')?.value || getTodayDateString();
+            const records = cloudAttendance.filter(r => r.date === selectedDate);
+            if (!records.length) return showToast(`No attendance records for ${selectedDate}!`, "info");
+
+            const headers = ["SL", "Date", "BC Code", "BC Name", "Branch", "Mobile", "Check-In Time", "Check-In GPS", "Check-Out Time", "PMJDY (E/A)", "PMSBY (E/A)", "PMJJBY (E/A)", "APY (E/A)", "Total Enrolled", "Total Auth", "Status", "Remarks"];
+            const rows = records.map((r, idx) => {
+                const totE = (Number(r.pmjdyEnroll)||0) + (Number(r.pmsbyEnroll)||0) + (Number(r.pmjjbyEnroll)||0) + (Number(r.apyEnroll)||0);
+                const totA = (Number(r.pmjdyAuth)||0) + (Number(r.pmsbyAuth)||0) + (Number(r.pmjjbyAuth)||0) + (Number(r.apyAuth)||0);
+                return [
+                    idx + 1, r.date, r.bcCode, `"${r.bcName}"`, `"${r.branch}"`, r.mobile || '',
+                    `"${r.checkInTime || ''}"`, `"${r.checkInGPS || ''}"`, `"${r.checkOutTime || 'Pending'}"`,
+                    `${r.pmjdyEnroll||0}/${r.pmjdyAuth||0}`,
+                    `${r.pmsbyEnroll||0}/${r.pmsbyAuth||0}`,
+                    `${r.pmjjbyEnroll||0}/${r.pmjjbyAuth||0}`,
+                    `${r.apyEnroll||0}/${r.apyAuth||0}`,
+                    totE, totA, r.status || '', `"${r.remarks || ''}"`
+                ];
+            });
+
+            const csv = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+            const link = document.createElement("a");
+            link.href = encodeURI(csv);
+            link.download = `Mitr_Sewa_Daily_Attendance_MIS_${selectedDate}.csv`;
+            link.click();
+            showToast(`Daily Attendance MIS Excel (${selectedDate}) downloaded!`, "success");
+        };
+
+        // 4. Export Daily Attendance Check-In / Check-Out MIS to PDF
+        window.exportDailyAttendancePdf = () => {
+            const selectedDate = document.getElementById('filterAttendanceDate')?.value || getTodayDateString();
+            const records = cloudAttendance.filter(r => r.date === selectedDate);
+            if (!records.length) return showToast(`No attendance records for ${selectedDate}!`, "info");
+
+            let sumE = 0, sumA = 0, completedOut = 0;
+            const rowsHtml = records.map((r, idx) => {
+                const totE = (Number(r.pmjdyEnroll)||0) + (Number(r.pmsbyEnroll)||0) + (Number(r.pmjjbyEnroll)||0) + (Number(r.apyEnroll)||0);
+                const totA = (Number(r.pmjdyAuth)||0) + (Number(r.pmsbyAuth)||0) + (Number(r.pmjjbyAuth)||0) + (Number(r.apyAuth)||0);
+                sumE += totE; sumA += totA;
+                if (r.checkOutTime) completedOut++;
+                return `<tr>
+                    <td class="center">${idx + 1}</td>
+                    <td>${r.bcCode}</td>
+                    <td class="bold">${r.bcName}</td>
+                    <td>${r.branch}</td>
+                    <td>${r.checkInTime || '-'}</td>
+                    <td>${r.checkOutTime || 'Pending'}</td>
+                    <td class="center">${r.pmjdyEnroll||0}/${r.pmjdyAuth||0}</td>
+                    <td class="center">${r.pmsbyEnroll||0}/${r.pmsbyAuth||0}</td>
+                    <td class="center">${r.pmjjbyEnroll||0}/${r.pmjjbyAuth||0}</td>
+                    <td class="center">${r.apyEnroll||0}/${r.apyAuth||0}</td>
+                    <td class="center bold">${totE}/${totA}</td>
+                </tr>`;
+            }).join('');
+
+            const summaryHtml = `Date: ${selectedDate} &nbsp;|&nbsp; Checked-In: ${records.length} &nbsp;|&nbsp; Checked-Out: ${completedOut} &nbsp;|&nbsp; Total Enrolled: ${sumE} &nbsp;|&nbsp; Total Auth: ${sumA}`;
+            openPrintablePdfWindow(
+                "Daily Check-In, Check-Out & Scheme Performance MIS",
+                `Report Date: ${selectedDate}`,
+                ["SL", "BC Code", "BC Name", "Branch", "Check-In", "Check-Out", "PMJDY", "PMSBY", "PMJJBY", "APY", "Total (E/A)"],
+                rowsHtml,
+                summaryHtml
+            );
         };
 
         window.exportToCsv = () => {
